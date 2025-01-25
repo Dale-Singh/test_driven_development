@@ -1,0 +1,5 @@
+db.sqlite3
+.venv
+Project Notes.gdoc
+__pycache__
+*.pyc
