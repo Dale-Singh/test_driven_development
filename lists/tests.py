@@ -7,16 +7,13 @@ from lists.views import home_page
 
 # Define a test case class that inherits from TestCase
 class HomePageTest(TestCase):
-    # Define a test method to check if the home_page view returns the correct HTML
+    # This test checks that the root URL ("/") is correctly resolved by the application.
+    # It uses Django's test client to simulate an HTTP GET request to "/",
+    # ensuring that the URL resolves correctly and the view returns the expected HTML response.
     def test_home_page_returns_correct_html(self):
-        # Create an instance of HttpRequest to simulate a request
-        request = HttpRequest()
-        # Call the home_page view with the simulated request
-        response = home_page(request)
-        # Decode the response content to extract the HTML
-        html = response.content.decode("utf8")
-
+        # Send a GET request to the root URL
+        response = self.client.get("/")
         # Apply assertions to verify the HTML content
-        self.assertIn("<title>To-Do lists</title>", html)  # Check for the correct title
-        self.assertTrue(html.startswith("<html>"))        # Check if it starts with <html>
-        self.assertTrue(html.endswith("</html>"))         # Check if it ends with </html>
+        self.assertContains(response, "<title>To-Do lists</title>") # Check for the correct title
+        self.assertContains(response, "<html>") # Check if it starts with <html>
+        self.assertContains(response, "</html>") # Check if it ends with </html>
