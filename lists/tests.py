@@ -10,10 +10,8 @@ class HomePageTest(TestCase):
     # This test checks that the root URL ("/") is correctly resolved by the application.
     # It uses Django's test client to simulate an HTTP GET request to "/",
     # ensuring that the URL resolves correctly and the view returns the expected HTML response.
-    def test_home_page_returns_correct_html(self):
+    def test_uses_home_template(self):
         # Send a GET request to the root URL
         response = self.client.get("/")
         # Apply assertions to verify the HTML content
-        self.assertContains(response, "<title>To-Do lists</title>") # Check for the correct title
-        self.assertContains(response, "<html>") # Check if it starts with <html>
-        self.assertContains(response, "</html>") # Check if it ends with </html>
+        self.assertTemplateUsed(response, "home.html")

@@ -56,6 +56,7 @@ class NewVisitorTest(unittest.TestCase):
         table = self.browser.find_element(By.ID, "id_list_table")
         # Find all table row (<tr>) elements within the table
         rows = table,find_elements(By.TAG_NAME, "tr")
+        # Verify that at least one row contains the expected text
         self.assertTrue(any(row.text == "1: Buy peacock feathers" for row in rows))
 
         # There is still a text box inviting her to add another item.
