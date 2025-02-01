@@ -1,4 +1,4 @@
-# Import the unittest framework
+# Framework
 import unittest
 # Import the webdriver module from the Selenium library
 # This allows us to interact with web browsers through Selenium
@@ -22,20 +22,17 @@ class NewVisitorTest(unittest.TestCase):
         # Close the browser after the test is done
         self.browser.quit()
 
-    # Define the actual test method that will check if a to-do list can be started
     def test_can_start_a_todo_list(self):  
         # Edith has heard about a cool new online to-do app
         # She goes to check out its homepage
         # Navigate to the specified URL (localhost:8000)
-        self.browser.get("http://localhost:8000") 
+        self.browser.get("http://localhost:8000")
 
         # She notices the page title and header mention to-do lists
-        # Check that "To-Do" is in the title of the page
         self.assertIn("To-Do", self.browser.title)
         # Locate the first <h1> element this is returned as a WebElement oject
         # Retrieve the text located in the .text field
         header_text = self.browser.find_element(By.TAG_NAME, "h1").text
-        # Verify the text
         self.assertIn("To-Do", header_text)
 
         # She is invited to enter a to-do item straight away
@@ -46,32 +43,41 @@ class NewVisitorTest(unittest.TestCase):
 
         # When she hits enter, the page updates, and now the page lists
         # "1: Buy peacock feathers" as an item in a to-do list table
-        # Simulate a key press
+        inputbox.send_keys("Buy peacock feathers") 
         inputbox.send_keys(Keys.ENTER)
-        # Pause for 1 second to allow the page to refresh before assertions
-        # are executed
+        # Pause for 1 second to allow the page to refresh before assertions are executed
         time.sleep(1)
 
         # Locate the table element by its ID
         table = self.browser.find_element(By.ID, "id_list_table")
         # Find all table row (<tr>) elements within the table
         rows = table.find_elements(By.TAG_NAME, "tr")
-        # Verify that at least one row contains the expected text
-        self.assertTrue(
-            any(row.text == "1: Buy peacock feathers" for row in rows),
-            "New to-do item did not appear in table"
-        )
+        
 
-        # There is still a text box inviting her to add another item.
+        # There is still a text box inviting her to add another item
         # She enters "Use peacock feathers to make a fly"
         # (Edith is very methodical)
-        self.fail("Finish the test!")
+        inputbox = self.browser.find_element(By.ID, "id_new_item")
+        inputbox.send_keys("Use peacock feathers to make a fly")
+        inputbox.send_keys(Keys.ENTER)
+        time.sleep(1)
 
         # The page updates again, and now shows both items on her list
+        table = self.browser.find_element(By.ID, "id_list_table")
+        rows = table.find_elements(By.TAG_NAME, "tr")
+        # Verify that the expected text
+        self.assertIn("1: Buy peacock feathers", [row.text for row in rows])
+        self.assertIn("2: Use peacock feathers to make a fly", [row.text for row in rows])
+
+        
+        self.fail("Finish the test!")
+
 
         # Satisfied, she goes back to sleep
         # (This comment is just a placeholder; in a real test, the application behavior would be validated)
 
 # This runs the tests when the script is executed directly
+# All scripts have an inbuilt variable __name__ when a script is run directly
+# __name__ is set to __main__ executing the code inside the if statement
 if __name__ == "__main__":  
     unittest.main()  # Start the test runner to execute the test methods

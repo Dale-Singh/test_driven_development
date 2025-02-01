@@ -7,11 +7,20 @@ from lists.views import home_page
 
 # Define a test case class that inherits from TestCase
 class HomePageTest(TestCase):
-    # This test checks that the root URL ("/") is correctly resolved by the application.
+    # This test checks that the root URL ("/") is correctly resolved by the application
     # It uses Django's test client to simulate an HTTP GET request to "/",
-    # ensuring that the URL resolves correctly and the view returns the expected HTML response.
+    # ensuring that the URL resolves correctly and the view returns the expected HTML response
     def test_uses_home_template(self):
-        # Send a GET request to the root URL
+        # Send a GET request to the root URL, a HttpResponse object is returned
         response = self.client.get("/")
-        # Apply assertions to verify the HTML content
         self.assertTemplateUsed(response, "home.html")
+    
+    # This test checks whether a new To-Do list entry is correctly saved and displayed
+    def test_can_save_a_POST_request(self):
+        # Simulate a POST request to the root URL with a new To-Do list item entry,
+        # a HttpResponse object is returned
+        response = self.client.post("/", data={"item_text": "A new list item"})
+        # Verify that the response contains the submitted item text
+        self.assertContains(response, "A new list item")
+        self.assertTemplateUsed(response, "home.html")
+

@@ -4,8 +4,16 @@
     </head>
     <body>
         <h1>Your To-Do list</h1>
-        <input id="id_new_item" placeholder="Enter a to-do item">
+        <!-- The form uses the POST method to send data securely to the server -->
+        <form method="POST">
+            <!-- User input field -->
+            <input name="item_text" id="id_new_item" placeholder="Enter a to-do item"/>
+            <!-- Django CSRF protection token -->
+            {% csrf_token %}
+        </form>
         <table id="id_list_table">
+            <!-- Create a new row with the value of the Django variable -->
+            <tr><td>1: {{ new_item_text }}</td></tr>
         </table>
     </body>
 </html>
