@@ -15,12 +15,18 @@ import time
 class NewVisitorTest(unittest.TestCase):  
     # The setUp method runs before each test to set up any resources needed
     def setUp(self):  
-        # Set up an instance of the Firefox browser for each test
         self.browser = webdriver.Firefox()
     # The tearDown method runs after each test to clean up resources
     def tearDown(self):  
-        # Close the browser after the test is done
         self.browser.quit()
+
+    def check_for_row_in_list_table(self, row_text):
+        # Locate the table element by its ID
+        table = self.browser.find_element(By.ID, "id_list_table")
+        # Find all table row (<tr>) elements within the table
+        rows = table.find_elements(By.TAG_NAME, "tr")
+        # Verify the entry is present within in the table
+        self.assertIn(row_text, [row.text for row in rows])
 
     def test_can_start_a_todo_list(self):  
         # Edith has heard about a cool new online to-do app
@@ -36,7 +42,6 @@ class NewVisitorTest(unittest.TestCase):
         self.assertIn("To-Do", header_text)
 
         # She is invited to enter a to-do item straight away
-        # Locate the input field using its ID attribute
         inputbox = self.browser.find_element(By.ID, "id_new_item")
         # Verify the placeholder text
         self.assertEqual(inputbox.get_attribute("placeholder"), "Enter a to-do item")
@@ -47,12 +52,7 @@ class NewVisitorTest(unittest.TestCase):
         inputbox.send_keys(Keys.ENTER)
         # Pause for 1 second to allow the page to refresh before assertions are executed
         time.sleep(1)
-
-        # Locate the table element by its ID
-        table = self.browser.find_element(By.ID, "id_list_table")
-        # Find all table row (<tr>) elements within the table
-        rows = table.find_elements(By.TAG_NAME, "tr")
-        
+        self.check_for_row_in_list_table("1: Buy peacock feathers") 
 
         # There is still a text box inviting her to add another item
         # She enters "Use peacock feathers to make a fly"
@@ -63,17 +63,12 @@ class NewVisitorTest(unittest.TestCase):
         time.sleep(1)
 
         # The page updates again, and now shows both items on her list
-        table = self.browser.find_element(By.ID, "id_list_table")
-        rows = table.find_elements(By.TAG_NAME, "tr")
-        # Verify that the expected text
-        self.assertIn("1: Buy peacock feathers", [row.text for row in rows])
-        self.assertIn("2: Use peacock feathers to make a fly", [row.text for row in rows])
-
-        
-        self.fail("Finish the test!")
-
+        self.check_for_row_in_list_table("1: Buy peacock feathers")
+        self.check_for_row_in_list_table("2: Use peacock feathers to make a fly")
 
         # Satisfied, she goes back to sleep
+        self.fail("Finish the test!")
+
         # (This comment is just a placeholder; in a real test, the application behavior would be validated)
 
 # This runs the tests when the script is executed directly
