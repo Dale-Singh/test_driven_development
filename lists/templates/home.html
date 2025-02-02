@@ -12,8 +12,12 @@
             {% csrf_token %}
         </form>
         <table id="id_list_table">
-            <!-- Create a new row with the value of the Django variable -->
-            <tr><td>1: {{ new_item_text }}</td></tr>
+            <!-- Loop through each item in the items list passed from the view -->
+            {% for item in items %}
+                <!-- Create a new table row for each item -->
+                <!-- forloop.counter is a built-in Django variable that provides the current iteration count (starting from 1) -->
+                <tr><td>{{ forloop.counter }}: {{ item.text }}</td></tr>
+            {% endfor %}
         </table>
     </body>
 </html>

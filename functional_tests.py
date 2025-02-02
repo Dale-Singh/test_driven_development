@@ -64,7 +64,6 @@ class NewVisitorTest(unittest.TestCase):
         self.check_for_row_in_list_table("2: Use peacock feathers to make a fly")
 
         # Satisfied, she goes back to sleep
-        self.fail("Finish the test!")
 
         # (This comment is just a placeholder; in a real test, the application behavior would be validated)
 
