@@ -1,3 +1,6 @@
 from django.db import models
 
-# Create your models here.
+# Inheriting from models.Model
+class Item(models.Model):
+    text = models.TextField(default="")
+

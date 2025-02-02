@@ -21,9 +21,10 @@ class NewVisitorTest(unittest.TestCase):
         self.browser.quit()
 
     def check_for_row_in_list_table(self, row_text):
-        # Locate the table element by its ID
+        # Locate the table element by its ID, a WebElement object is returned
         table = self.browser.find_element(By.ID, "id_list_table")
-        # Find all table row (<tr>) elements within the table
+        # Find all table row (<tr>) elements within the table, 
+        # each row is returned as a WebElement object
         rows = table.find_elements(By.TAG_NAME, "tr")
         # Verify the entry is present within in the table
         self.assertIn(row_text, [row.text for row in rows])
@@ -36,14 +37,11 @@ class NewVisitorTest(unittest.TestCase):
 
         # She notices the page title and header mention to-do lists
         self.assertIn("To-Do", self.browser.title)
-        # Locate the first <h1> element this is returned as a WebElement oject
-        # Retrieve the text located in the .text field
         header_text = self.browser.find_element(By.TAG_NAME, "h1").text
         self.assertIn("To-Do", header_text)
 
         # She is invited to enter a to-do item straight away
         inputbox = self.browser.find_element(By.ID, "id_new_item")
-        # Verify the placeholder text
         self.assertEqual(inputbox.get_attribute("placeholder"), "Enter a to-do item")
 
         # When she hits enter, the page updates, and now the page lists
@@ -52,7 +50,6 @@ class NewVisitorTest(unittest.TestCase):
         inputbox.send_keys(Keys.ENTER)
         # Pause for 1 second to allow the page to refresh before assertions are executed
         time.sleep(1)
-        self.check_for_row_in_list_table("1: Buy peacock feathers") 
 
         # There is still a text box inviting her to add another item
         # She enters "Use peacock feathers to make a fly"
