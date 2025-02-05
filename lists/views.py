@@ -6,12 +6,6 @@ from lists.models import Item
 
 # View function for the home page
 def home_page(request):
-    if request.method == "POST":
-        # Create a new instance (row) of the Item model, request.Post is a dictionary object
-        Item.objects.create(text=request.POST["item_text"])
-        # Redirect as per the PRG web development pattern
-        return redirect("/lists/the-only-list-in-the-world/")
-    
     # Render the "home.html" template and return an HttpResponse object
     return render(request, "home.html")
 
@@ -20,3 +14,9 @@ def view_list(request):
     # The key "items" specified here is linked to the variable items in the home.html template,
     # It passes the QuerySet 'items' above which is used to populate the table dynamically.
     return render(request, "list.html", {"items": items})
+
+def new_list(request):
+    # Create a new instance (row) of the Item model, request.Post is a dictionary object
+    Item.objects.create(text=request.POST["item_text"])
+    # Redirect as per the PRG web development pattern
+    return redirect("/lists/the-only-list-in-the-world/")

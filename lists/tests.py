@@ -14,34 +14,6 @@ class HomePageTest(TestCase):
         # Send a GET request to the root URL, a HttpResponse object is returned
         response = self.client.get("/")
         self.assertTemplateUsed(response, "home.html")
-    
-    # def test_displays_all_list_items(self):
-    #     Item.objects.create(text="itemey 1")
-    #     Item.objects.create(text="itemey 2")
-    #     response = self.client.get("/")
-    #     self.assertContains(response, "itemey 1")
-    #     self.assertContains(response, "itemey 2")
-    
-    # This test checks whether a new To-Do list entry is correctly saved and displayed
-    def test_can_save_a_POST_request(self):
-        # Simulate a POST request to the root URL with a new To-Do list item entry,
-        # a HttpResponse object is returned
-        self.client.post("/", data={"item_text": "A new list item"})
-        # Verify that exactly one item has been saved in the Item table after the POST request
-        self.assertEqual(Item.objects.count(), 1)
-        # Select the first row in the Item table
-        new_item = Item.objects.first()
-        # Verify that the saved item’s text matches the submitted data
-        self.assertEqual(new_item.text, "A new list item")
-    
-    def test_redirects_a_POST_request(self):
-        response = self.client.post("/", data={"item_text": "A new list item"})
-        # Verify that a redirection occurs not the result of the redirection
-        self.assertRedirects(response, "/lists/the-only-list-in-the-world/")
-    
-    def test_only_saves_items_when_necessary(self):
-        self.client.get("/")
-        self.assertEqual(Item.objects.count(), 0)
 
 class ListViewTest(TestCase):
     def test_uses_list_template(self):
@@ -54,6 +26,23 @@ class ListViewTest(TestCase):
         response = self.client.get("/lists/the-only-list-in-the-world/")
         self.assertContains(response, "itemey 1")
         self.assertContains(response, "itemey 2")
+
+class NewListTest(TestCase):
+    # This test checks whether a new To-Do list entry is correctly saved and displayed
+    def test_can_save_a_POST_request(self):
+        # URLs excluding a trailing / are action URLs, they modify the database
+        self.client.post("/lists/new", data={"item_text": "A new list item"})
+        # Verify that exactly one item has been saved in the Item table after the POST request
+        self.assertEqual(Item.objects.count(), 1)
+        # Select the first row in the Item table
+        new_item = Item.objects.first()
+        # Verify that the saved item’s text matches the submitted data
+        self.assertEqual(new_item.text, "A new list item")
+    
+    def test_redirects_a_POST_request(self):
+        response = self.client.post("/lists/new", data={"item_text": "A new list item"})
+        # Verify that a redirection occurs not the result of the redirection
+        self.assertRedirects(response, "/lists/the-only-list-in-the-world/")
 
 # This class allows for the creation of a temporary test database
 # It verifies that items can be saved and retrieved from the database
