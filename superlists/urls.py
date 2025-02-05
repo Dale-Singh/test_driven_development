@@ -17,10 +17,11 @@ Including another URLconf
 # Import the path function to define URL patterns
 from django.urls import path
 # Import the home_page view function from the lists app
-from lists.views import home_page
+from lists import views
 
 urlpatterns = [
     # The root URL "/" becomes "" as Django removes the leading "/" from all URLs
     # The root URL is mapped to the home_page view and the pattern is called "home"
-    path("",home_page, name="home"),
+    path("", views.home_page, name="home"),
+    path("lists/the-only-list-in-the-world/", views.view_list, name="view_list")
 ]
