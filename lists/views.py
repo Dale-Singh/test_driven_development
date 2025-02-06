@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from lists.models import Item
+from lists.models import Item, List
 
 # All Django views must accept a request object, even if not used
 # The request object contains data about the HTTP request, which can be useful later
@@ -16,7 +16,9 @@ def view_list(request):
     return render(request, "list.html", {"items": items})
 
 def new_list(request):
-    # Create a new instance (row) of the Item model, request.Post is a dictionary object
-    Item.objects.create(text=request.POST["item_text"])
+    # Create a new instance (row) of the List model (table)
+    nulist = List.objects.create()
+    # Create a new instance (row) of the Item model (table), request.Post is a dictionary object
+    Item.objects.create(text=request.POST["item_text"], list=nulist)
     # Redirect as per the PRG web development pattern
     return redirect("/lists/the-only-list-in-the-world/")

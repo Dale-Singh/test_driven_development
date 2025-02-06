@@ -1,9 +1,8 @@
 from django.test import TestCase
-from django.http import HttpRequest
 # Import the home_page function from the lists app
 from lists.views import home_page
-# Import the Item model (table) from the lists app
-from lists.models import Item
+# Import the Item and List model (tables) from the lists app
+from lists.models import Item, List
 
 # Define a test case class that inherits from TestCase
 class HomePageTest(TestCase):
@@ -21,8 +20,9 @@ class ListViewTest(TestCase):
         self.assertTemplateUsed(response, "list.html")
 
     def test_displays_all_list_items(self):
-        Item.objects.create(text="itemey 1")
-        Item.objects.create(text="itemey 2")
+        mylist = List.objects.create()
+        Item.objects.create(text="itemey 1", list=mylist)
+        Item.objects.create(text="itemey 2", list=mylist)
         response = self.client.get("/lists/the-only-list-in-the-world/")
         self.assertContains(response, "itemey 1")
         self.assertContains(response, "itemey 2")
@@ -47,18 +47,29 @@ class NewListTest(TestCase):
 # This class allows for the creation of a temporary test database
 # It verifies that items can be saved and retrieved from the database
 # using Django's ORM (Object-Relational Mapper)
-class ItemModelTest(TestCase):
+class ListandItemModelsTest(TestCase):
     def test_saving_and_retrieving_items(self):
-        # Create a new instance (row) of the Item model (table) 
+        # Create a new instance (row) of the List model (table) in memory
+        mylist = List()
+        # Save the list to the database using Django's ORM (creates a new row)
+        mylist.save()
+
+        # Create a new instance (row) of the Item model (table) in memory
         first_item = Item()
         first_item.text = "The first (ever) item"
-        # Save the item to the database using Django's ORM (creates a new row)
+        # Specify which list this item belongs to
+        first_item.list = mylist
         first_item.save()
 
         # Create and save a second item
         second_item = Item()
         second_item.text = "Item the second"
+        second_item.list = mylist
         second_item.save()
+
+        saved_list = List.objects.get()
+        # Verify that both lists are the same by comparing the IDs (.id) of both lists
+        self.assertEqual(saved_list, mylist)
 
         # Use Django's ORM API to query and retrieve all saved items from the database
         # Returns a QuerySet containing all rows in the Item table
@@ -72,6 +83,10 @@ class ItemModelTest(TestCase):
 
         # Verify that the saved items match the original data
         self.assertEqual(first_saved_item.text,"The first (ever) item")
+        # Verify that the saved items are associated to the correct list
+        self.assertEqual(first_saved_item.list, mylist)
+
         self.assertEqual(second_saved_item.text,"Item the second")
+        self.assertEqual(second_saved_item.list, mylist)
 
 
