@@ -16,16 +16,31 @@ class HomePageTest(TestCase):
 
 class ListViewTest(TestCase):
     def test_uses_list_template(self):
-        response = self.client.get("/lists/the-only-list-in-the-world/")
+        mylist = List.objects.create()
+        response = self.client.get(f"/lists/{mylist.id}/")
         self.assertTemplateUsed(response, "list.html")
 
-    def test_displays_all_list_items(self):
-        mylist = List.objects.create()
-        Item.objects.create(text="itemey 1", list=mylist)
-        Item.objects.create(text="itemey 2", list=mylist)
-        response = self.client.get("/lists/the-only-list-in-the-world/")
+    def test_displays_only_items_for_that_list(self):
+        correct_list = List.objects.create()
+        Item.objects.create(text="itemey 1", list=correct_list)
+        Item.objects.create(text="itemey 2", list=correct_list)
+        other_list = List.objects.create()
+        Item.objects.create(text="other list item", list=other_list)
+
+        response = self.client.get(f"/lists/{correct_list.id}/")
+
         self.assertContains(response, "itemey 1")
         self.assertContains(response, "itemey 2")
+        self.assertNotContains(response, "other list item")
+
+    def test_passes_correct_list_to_template(self):
+        other_list = List.objects.create()
+        correct_list = List.objects.create()
+        response = self.client.get(F"/lists/{correct_list.id}/")
+        # response.context is a dictionary like object containing data 
+        # sent to the template from the view. The key "list" is accessed
+        # and its value is compared against correct_list
+        self.assertEqual(response.context["list"], correct_list)
 
 class NewListTest(TestCase):
     # This test checks whether a new To-Do list entry is correctly saved and displayed
@@ -39,10 +54,40 @@ class NewListTest(TestCase):
         # Verify that the saved item’s text matches the submitted data
         self.assertEqual(new_item.text, "A new list item")
     
-    def test_redirects_a_POST_request(self):
+    def test_redirects_after_POST(self):
         response = self.client.post("/lists/new", data={"item_text": "A new list item"})
+        new_list = List.objects.get()
         # Verify that a redirection occurs not the result of the redirection
-        self.assertRedirects(response, "/lists/the-only-list-in-the-world/")
+        self.assertRedirects(response, f"/lists/{new_list.id}/")
+
+class NewItemTest(TestCase):
+    def test_can_save_a_POST_request_to_an_existing_list(self):
+        other_list = List.objects.create()
+        correct_list = List.objects.create()
+
+        self.client.post(
+            f"/lists/{correct_list.id}/add_item",
+            data={"item_text": "A new item for an existing list"}
+        )
+
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.get()
+        self.assertEqual(new_item.text, "A new item for an existing list")
+        # Django treats new_item.list as a List instance, not just an ID reference.
+        # When comparing two model instances, Django automatically compares their primary keys (IDs).
+        self.assertEqual(new_item.list, correct_list)
+
+    def test_redirects_to_list_view(self):
+        other_list = List.objects.create()
+        correct_list = List.objects.create()
+
+        response = self.client.post(
+            f"/lists/{correct_list.id}/add_item",
+            data={"item_text": "A new item for an existing list"}
+        )
+
+        self.assertRedirects(response, f"/lists/{correct_list.id}/")
+        
 
 # This class allows for the creation of a temporary test database
 # It verifies that items can be saved and retrieved from the database

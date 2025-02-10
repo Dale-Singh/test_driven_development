@@ -24,5 +24,8 @@ urlpatterns = [
     # The root URL is mapped to the home_page view and the pattern is called "home"
     path("", views.home_page, name="home"),
     path("lists/new", views.new_list, name="new_list"),
-    path("lists/the-only-list-in-the-world/", views.view_list, name="view_list"),
+    # URL pattern that captures an integer stored in the variable (list_id) from the URL
+    # Example: Visiting "/lists/1/" will call view_list(request, list_id=1)
+    path("lists/<int:list_id>/", views.view_list, name="view_list"),
+    path("lists/<int:list_id>/add_item", views.add_item, name="add_item"),
 ]
