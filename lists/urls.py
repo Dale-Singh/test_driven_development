@@ -14,16 +14,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-# Import the path function to define URL patterns,
-# and include to reference other URL configurations
-from django.urls import include, path
+# Import the path function to define URL patterns
+from django.urls import path
 # Import view function from the lists app
-from lists import views as list_views
+from lists import views
 
 urlpatterns = [
-    # The root URL "/" becomes "" as Django removes the leading "/" from all URLs
-    # The root URL is mapped to the home_page view and the pattern is called "home"
-    path("", list_views.home_page, name="home"),
-    # Any URL pattern matching lists/ is handled by lists.urls
-    path("lists/", include("lists.urls")),
+    path("new", views.new_list, name="new_list"),
+    # URL pattern that captures an integer stored in the variable (list_id) from the URL
+    # Example: Visiting "/lists/1/" will call view_list(request, list_id=1)
+    path("<int:list_id>/", views.view_list, name="view_list"),
+    path("<int:list_id>/add_item", views.add_item, name="add_item"),
 ]
