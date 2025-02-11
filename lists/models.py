@@ -2,6 +2,8 @@ from django.db import models
 
 # Inheriting from models.Model
 class List(models.Model):
+    # Django automatically creates a table for this model and defines an ID field
+    # Hence, nothing needs defining
     pass
 
 class Item(models.Model):
