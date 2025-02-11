@@ -1,0 +1,18 @@
+<html>
+    <head>
+        <title>To-Do lists</title>
+    </head>
+    <body>
+        <h1>{% block header_text %}{% endblock %}</h1>
+        <!-- The form uses the POST method to send data securely -->
+         <!-- action specifies where the post request is sent -->
+        <form method="POST" action={% block form_action %}{% endblock %}>
+            <!-- User input field -->
+            <input name="item_text" id="id_new_item" placeholder="Enter a to-do item"/>
+            <!-- Django CSRF protection token -->
+            {% csrf_token %}
+        </form>
+        {% block table %}
+        {% endblock %}
+    </body>
+</html>
