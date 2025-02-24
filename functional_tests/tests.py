@@ -1,7 +1,7 @@
 # This allows us to interact with the project through a web browser
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
-from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing  import StaticLiveServerTestCase
 # Imports the By class, which provides different strategies for locating elements on a web page
 from selenium.webdriver.common.by import By
 # Imports the Keys class, which allows Selenium to simulate keyboard actions
@@ -12,7 +12,7 @@ import time
 MAX_WAIT = 5
 
 # Define the test case class
-class NewVisitorTest(LiveServerTestCase):  
+class NewVisitorTest(StaticLiveServerTestCase):
     # The setUp method runs before each test to set up any resources needed
     def setUp(self):  
         self.browser = webdriver.Firefox()
