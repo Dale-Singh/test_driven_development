@@ -5,7 +5,4 @@ __pycache__
 *.pyc
 
 # Ignore only the root-level static folder created by collectstatic
-/static/
-
-# But keep app specific static files
-!lists/static/
+/static

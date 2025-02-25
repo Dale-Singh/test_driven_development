@@ -116,8 +116,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'static'
+# Defines the base URL path for serving static files in the browser.
+# Django will prepend "/static/" to static file references in templates.
+# Example: {% static 'css/style.css' %} -> /static/css/style.css
+STATIC_URL = '/static/'
+# Specifies the directory where Django will collect all static files 
+STATIC_ROOT = BASE_DIR / 'static' 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
