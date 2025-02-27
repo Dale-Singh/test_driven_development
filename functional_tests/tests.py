@@ -1,3 +1,5 @@
+# Allows interaction with the operating system and environment variables
+import os
 # This allows us to interact with the project through a web browser
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
@@ -11,11 +13,19 @@ import time
 
 MAX_WAIT = 5
 
-# Define the test case class
+# Define the test case class, inheriting from StaticLiveServerTestCase  
+# to enable functional testing with access to static files
 class NewVisitorTest(StaticLiveServerTestCase):
     # The setUp method runs before each test to set up any resources needed
     def setUp(self):  
         self.browser = webdriver.Firefox()
+        # Check if a test server is specified in the environment variables i.e. staging.example.com
+        test_server = os.environ.get("TEST_SERVER")
+        # If TEST_SERVER exists, override self.live_server_url to use the specified server  
+        # This allows testing on a remote test server instead of Django's default (http://127.0.0.1:8000/)
+        if test_server:
+            self.live_server_url = "http://" + test_server
+
     # The tearDown method runs after each test to clean up resources
     def tearDown(self):  
         self.browser.quit()
