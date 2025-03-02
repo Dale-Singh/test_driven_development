@@ -1,8 +1,13 @@
 db.sqlite3
+src/db.sqlite3
 .venv
 Project Notes.gdoc
 __pycache__
-*.pyc
+src/__pycache__
+**/*.pyc  # Ignore all .pyc files in all directories ** matches any directory at any depth, * matches any file in a directory
+
 
 # Ignore only the root-level static folder created by collectstatic
 /static
+/src/static
+
