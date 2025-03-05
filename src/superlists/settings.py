@@ -42,6 +42,10 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # WhiteNoise middleware is added here to serve static files efficiently in production.
+    # This ensures that static files (CSS, JavaScript) are served even when using Gunicorn,
+    # since Gunicorn does not handle static files by default.
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

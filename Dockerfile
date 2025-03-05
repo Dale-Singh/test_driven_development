@@ -10,8 +10,8 @@ RUN python -m venv /venv
 # We do this instead of using `source /venv/bin/activate`, which doesn’t persist across Dockerfile steps  
 ENV PATH="/venv/bin:$PATH"
 
-# Install Django inside the virtual environment
-RUN pip install "django<6"
+# Install required frameworks/libraries/modules inside the virtual environment
+RUN pip install "django<6" gunicorn whitenoise
 
 # Copy the src directory from the host machine into the container
 COPY src /src
@@ -22,7 +22,9 @@ WORKDIR /src
 # Applies all migrations to build or update the database schema
 RUN python manage.py migrate --noinput
 
-# Start the Django server, binding to 0.0.0.0 so it accepts connections from any IP, 
-# enabling access from outside the container on port 8888
-CMD python manage.py runserver 0.0.0.0:8888
+# Start Gunicorn a WSGI production server, binding to 0.0.0.0:8888, this will serve the Django application.
+# Specify the WSGI application location, which initialises the Django app and handles communication
+# between Gunicorn and Django.
+CMD gunicorn --bind 0.0.0.0:8888 superlists.wsgi:application
+
 
