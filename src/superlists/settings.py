@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,13 +20,30 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
+# Check if the "DJANGO_DEBUG_FALSE" environment variable is set in the current shell session.
+# If present, disable debug mode, use a secure secret key from the environment, and set allowed hosts.
+if "DJANGO_DEBUG_FALSE" in os.environ:
+    DEBUG = False
+    # The environment variables are set at the point the docker container is run,
+    # it is not defined in the Dockerfile.
+    SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
+    # The environment variable DJANGO_ALLOWED_HOST should contain the hostname or IP allowed to access the app.
+    ALLOWED_HOSTS = [os.environ["DJANGO_ALLOWED_HOST"]]
+
+# If the environment variable is not set, enable debug mode (for development),
+# use an insecure default secret key and allow all hosts.
+else:
+    DEBUG = True
+    SECRET_KEY = "insecure-key-for-dev"
+    ALLOWED_HOSTS = []
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-@=xs!bhft27uxao1-*-nib5$+z3%808yrr-a9$n1xp!b9z(#^+'
+# SECRET_KEY = 'django-insecure-@=xs!bhft27uxao1-*-nib5$+z3%808yrr-a9$n1xp!b9z(#^+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
 
 
 # Application definition
