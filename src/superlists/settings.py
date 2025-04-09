@@ -45,6 +45,29 @@ else:
 
 # ALLOWED_HOSTS = []
 
+LOGGING = {
+    # Define the logging configuration version (always 1 in Django)
+    "version": 1,  
+
+    # If set to True, Django will disable all existing loggers. 
+    # We keep this False so that existing loggers (like Django’s default logging) continue working.
+    "disable_existing_loggers": False,  
+
+    # Define how logs should be handled
+    "handlers": {
+        "console": {  
+            "class": "logging.StreamHandler",  # Sends logs to the terminal (console)
+        },
+    },
+
+    # Define the loggers (who should generate logs and where they go)
+    "loggers": {
+        "root": {  
+            "handlers": ["console"],  # Send logs from the root logger to the console
+            "level": "INFO",  # Only show logs at INFO level or higher (INFO, WARNING, ERROR, CRITICAL)
+        },
+    },
+}
 
 # Application definition
 
