@@ -56,11 +56,23 @@
     - name: Ensure environment-specific .env file exists on server
       ansible.builtin.template:
         src: env.j2  # host
-        dest: ~/superlists.env  # server (in user's home dir)
-        force: true # THIS NEEDS TO BE CHANGED TO FALSE WHEN FULLY DEPLOYED TO LIVE
+        dest: "~/superlists-{{ container_name }}.env"  # server (in user's home dir)
+        force: false  # Do not overwrite existing .env files after initial deployment
       vars:
         host: "{{ inventory_hostname }}" # The hostname or IP of the target server is found and populated inside .env
         secret_key: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters') }}"  # A secret key is generated on the host and populated in .env
+        container_port: >-
+          {% if inventory_hostname.startswith('staging') %}
+            8080:8888
+          {% else %}
+            80:8888
+          {% endif %}
+        container_name: >-
+          {% if inventory_hostname.startswith('staging') %}
+            superlists-staging
+          {% else %}
+            superlists-live
+          {% endif %}
 
     # Create a placeholder db.sqlite3 file on the server (for mounting into the container)
     - name: Ensure db.sqlite3 file exists outside the container
@@ -68,7 +80,7 @@
         path: /home/dale/db.sqlite3  # server file system
         state: touch
       become: true
-    
+
     # Ensure the container can write to db.sqlite3:
     # - The Dockerfile creates a nonroot user (UID 100 / GID 101), and the container runs as that user
     # - This task changes ownership of the host's (server) db.sqlite3 file to that user, so it can write to the file when it's bind-mounted into the container
@@ -81,25 +93,25 @@
         group: 101
       become: true
 
-    # - Mount server's db.sqlite3 file (persistent DB) to the container
-    # - Load env vars (previously uploaded and rendered to the server from the host)
-    # - Map server port 80 to container port 8888
+    # Run the container with environment-specific settings:
+    # - Mount the correct db.sqlite3 file
+    # - Load the correct .env file per environment
+    # - Expose unique ports per environment (80 for live, 8080 for staging)
     - name: Run container
       community.docker.docker_container:
-        name: superlists
+        name: "{{ container_name }}"
         image: superlists
         state: started
         recreate: true
-        env_file: ~/superlists.env  # server path
+        env_file: "~/superlists-{{ container_name }}.env"  # server path
         mounts:
           - type: bind # Bind-mount: link host's db.sqlite3 into container at /src/db.sqlite3 for persistent storage
             source: /home/dale/db.sqlite3  # server
             target: /src/db.sqlite3  # inside container
-        ports: 80:8888
+        ports: "{{ container_port }}"  # maps dynamic host port (e.g. 80 or 8080) to container port 8888
 
     # Run Django migrations inside the container to initialize db.sqlite3, unless the db is up to date
     - name: Run migration inside container
       community.docker.docker_container_exec:
-        container: superlists
+        container: "{{ container_name }}"
         command: ./manage.py migrate  # runs inside container
-
