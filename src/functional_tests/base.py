@@ -33,7 +33,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.quit()
 
     def wait_for_row_in_list_table(self, row_text):
-    # Record the start time to track how long the function has been waiting
+        # Record the start time to track how long the function has been waiting
         start_time = time.time()
     
         # Continuously attempt to find the row until successful or timeout occurs
@@ -56,4 +56,16 @@ class FunctionalTest(StaticLiveServerTestCase):
                     # Re-raise the original error to indicate failure
                     raise  
                 # Pause for 0.5 seconds before retrying
+                time.sleep(0.5)
+    
+    def wait_for(self, fn):
+        start_time = time.time()
+    
+        # Continuously attempt to run the function until successful or timeout occurs
+        while True:
+            try:
+                return fn()
+            except (AssertionError, WebDriverException):
+                if time.time() - start_time > MAX_WAIT:
+                    raise
                 time.sleep(0.5)
