@@ -1,10 +1,12 @@
 from django.db import models
+from django.urls import reverse
 
-# Inheriting from models.Model
+# Django automatically creates a table for each model and defines an ID field
 class List(models.Model):
-    # Django automatically creates a table for this model and defines an ID field
-    # Hence, nothing needs defining
-    pass
+    # Special Django-recognised method that defines the URL for this object.
+    # Enables automatic URL resolution for redirects, templates, and admin links.
+    def get_absolute_url(self):
+        return reverse('view_list', args=[self.id])
 
 class Item(models.Model):
     text = models.TextField(default="")

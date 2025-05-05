@@ -72,3 +72,7 @@ class ListandItemModelsTest(TestCase):
             # .save() skips validation (e.g., for blank fields or field types) and only 
             # enforces DB constraints; .full_clean() runs all Django validations but does not save.item.full_clean()
             item.full_clean()
+
+    def test_get_absolute(self):
+        mylist = List.objects.create()
+        self.assertEqual(mylist.get_absolute_url(), f"/lists/{mylist.id}/")

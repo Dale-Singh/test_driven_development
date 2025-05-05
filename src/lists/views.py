@@ -25,7 +25,7 @@ def view_list(request, list_id):
             item.full_clean()
             item.save()
             # Redirect to the list page after successfully saving the item
-            return redirect(f"/lists/{our_list.id}/")
+            return redirect(our_list)
         except ValidationError:
             # If validation fails, set the error message (escaped for HTML safety)
             error = escape("You can't have an empty list item")
@@ -52,4 +52,4 @@ def new_list(request):
         return render(request, "home.html", {"error": error})
 
     # On successful save, redirect to the new list page following PRG pattern
-    return redirect(f"/lists/{nulist.id}/")
+    return redirect(nulist)
