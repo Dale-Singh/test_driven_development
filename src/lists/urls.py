@@ -24,5 +24,5 @@ urlpatterns = [
     # URL pattern that captures an integer stored in the variable (list_id) from the URL
     # Example: Visiting "/lists/1/" will call view_list(request, list_id=1)
     path("<int:list_id>/", views.view_list, name="view_list"),
-    path("<int:list_id>/add_item", views.add_item, name="add_item"),
+
 ]
