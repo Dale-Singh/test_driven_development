@@ -1,8 +1,11 @@
+# Import Django's base test case class for writing unit tests
 from django.test import TestCase
 # Import the home_page function from the lists app
 from lists.views import home_page
 # Import the Item and List model (tables) from the lists app
 from lists.models import Item, List
+# Import Django utility to escape special HTML characters for safe rendering
+from django.utils.html import escape
 
 # Define a test case class that inherits from TestCase
 class HomePageTest(TestCase):
@@ -59,6 +62,23 @@ class NewListTest(TestCase):
         new_list = List.objects.get()
         # Verify that a redirection occurs not the result of the redirection
         self.assertRedirects(response, f"/lists/{new_list.id}/")
+    
+    def test_validation_errors_are_sent_back_to_home_page_template(self):
+        response = self.client.post("/lists/new", data={"item_text": ""})
+        # Checks that upon a validation error a page is rendered successfully (200)...
+        self.assertEqual(response.status_code, 200)
+        # ...and that page is the homepage
+        self.assertTemplateUsed(response, "home.html")
+        # The view populates the homepage template with the below error message when input is invalid
+        expected_error = escape("You can't have an empty list item")
+        self.assertContains(response, expected_error)
+    
+    def test_invalid_list_items_arent_saved(self):
+        self.client.post("/lists/new", data={"item_text": ""})
+        self.assertEqual(List.objects.count(),0)
+        self.assertEqual(Item.objects.count(),0)
+
+
 
 class NewItemTest(TestCase):
     def test_can_save_a_POST_request_to_an_existing_list(self):
