@@ -22,7 +22,7 @@ def view_list(request, list_id):
     if request.method == 'POST':
         try:
             # Create a new Item instance (not saved yet) and validate it
-            item = Item(text=request.POST['item_text'], list=our_list)
+            item = Item(text=request.POST['text'], list=our_list)
             item.full_clean()
             item.save()
             # Redirect to the list page after successfully saving the item
@@ -39,7 +39,7 @@ def new_list(request):
     nulist = List.objects.create()
 
     # Create a new Item instance linked to the new list (not saved yet)
-    item = Item(text=request.POST["item_text"], list=nulist)
+    item = Item(text=request.POST["text"], list=nulist)
 
     try:
         # Validate the item before saving

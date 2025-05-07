@@ -27,6 +27,9 @@ class FunctionalTest(StaticLiveServerTestCase):
         # This allows testing on a remote test server instead of Django's default (http://127.0.0.1:8000/)
         if test_server:
             self.live_server_url = "http://" + test_server
+    
+    def get_item_input_box(self):
+        return self.browser.find_element(By.ID, 'id_text')
 
     # The tearDown method runs after each test to clean up resources
     def tearDown(self):  
