@@ -1,17 +1,18 @@
-from django.shortcuts import redirect, render
-from lists.models import Item, List
 # Import ValidationError for catching Django-level validation issues (e.g., blank fields)
 from django.core.exceptions import ValidationError
 # Import Django utility to escape special HTML characters for safe rendering
 from django.utils.html import escape
+from django.shortcuts import redirect, render
+from lists.models import Item, List
+from lists.forms import ItemForm
 
 # All Django views must accept a request object, even if not used
 # The request object contains data about the HTTP request, which can be useful later
 
 # View function for rendering the home page
 def home_page(request):
-    # Renders the "home.html" template and returns an HttpResponse object
-    return render(request, "home.html")
+    # Render the "home.html" template with the form and return an HttpResponse
+    return render(request, "home.html", {'form': ItemForm()})
 
 def view_list(request, list_id):
     # Retrieve the list from the database using the provided list_id

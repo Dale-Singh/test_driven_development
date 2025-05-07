@@ -1,11 +1,10 @@
 # Import Django's base test case class for writing unit tests
 from django.test import TestCase
-# Import the home_page function from the lists app
-from lists.views import home_page
-# Import the Item and List model (tables) from the lists app
-from lists.models import Item, List
 # Import Django utility to escape special HTML characters for safe rendering
 from django.utils.html import escape
+from lists.views import home_page
+from lists.models import Item, List
+from lists.forms import ItemForm
 
 # Define a test case class that inherits from TestCase
 class HomePageTest(TestCase):
@@ -16,6 +15,10 @@ class HomePageTest(TestCase):
         # Send a GET request to the root URL, a HttpResponse object is returned
         response = self.client.get("/")
         self.assertTemplateUsed(response, "home.html")
+    
+    def test_home_page_uses_item_form(self):
+        response = self.client.get("/")
+        self.assertIsInstance(response.context["form"], ItemForm)
 
 class ListViewTest(TestCase):
     def test_uses_list_template(self):

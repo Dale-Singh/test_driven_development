@@ -1,6 +1,5 @@
 from django import forms
 
-# Import the Item model from the lists app to link the form to the database model
 from lists.models import Item
 
 EMPTY_ITEM_ERROR = "You can't have an empty list item"
