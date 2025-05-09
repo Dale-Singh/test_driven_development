@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.utils.html import escape
 from lists.views import home_page
 from lists.models import Item, List
-from lists.forms import ItemForm
+from lists.forms import ItemForm, EMPTY_ITEM_ERROR
 
 # Define a test case class that inherits from TestCase
 class HomePageTest(TestCase):
@@ -18,6 +18,7 @@ class HomePageTest(TestCase):
     
     def test_home_page_uses_item_form(self):
         response = self.client.get("/")
+        # Checks that the form returned is of type ItemForm
         self.assertIsInstance(response.context["form"], ItemForm)
 
 class ListViewTest(TestCase):
@@ -74,6 +75,36 @@ class ListViewTest(TestCase):
         )
 
         self.assertRedirects(response, f"/lists/{correct_list.id}/")
+    
+    def test_displays_item_form(self):
+        mylist = List.objects.create()
+        response = self.client.get(f"/lists/{mylist.id}/")
+        self.assertIsInstance(response.context["form"], ItemForm)
+        self.assertContains(response, 'name="text"')
+    
+    # Helper function used in the other tests
+    def post_invalid_input(self):
+        mylist = List.objects.create()
+        return self.client.post(f"/lists/{mylist.id}/", data={"text": ""},)
+    
+    def test_for_invalid_input_nothing_saved_to_db(self):
+        self.post_invalid_input()
+        self.assertEqual(Item.objects.count(), 0)
+    
+    def test_for_invalid_input_renders_list_template(self):
+        response = self.post_invalid_input()
+        # Checks that upon a validation error a page is rendered successfully (200)...
+        self.assertEqual(response.status_code, 200)
+        # ...and that page is the lists page
+        self.assertTemplateUsed(response, "list.html")
+    
+    def test_for_invalid_input_passes_form_to_template(self):
+        response = self.post_invalid_input()
+        self.assertIsInstance(response.context["form"], ItemForm)
+    
+    def test_for_invalid_input_shows_error_on_page(self):
+        response = self.post_invalid_input()
+        self.assertContains(response, escape(EMPTY_ITEM_ERROR))
 
 class NewListTest(TestCase):
     # This test checks whether a new To-Do list entry is correctly saved and displayed
@@ -95,12 +126,11 @@ class NewListTest(TestCase):
     
     def test_validation_errors_are_sent_back_to_home_page_template(self):
         response = self.client.post("/lists/new", data={"text": ""})
-        # Checks that upon a validation error a page is rendered successfully (200)...
         self.assertEqual(response.status_code, 200)
-        # ...and that page is the homepage
         self.assertTemplateUsed(response, "home.html")
+        self.assertIsInstance(response.context["form"], ItemForm)
         # The view populates the homepage template with the below error message when input is invalid
-        expected_error = escape("You can't have an empty list item")
+        expected_error = escape(EMPTY_ITEM_ERROR)
         self.assertContains(response, expected_error)
     
     def test_validation_errors_end_up_on_lists_page(self):

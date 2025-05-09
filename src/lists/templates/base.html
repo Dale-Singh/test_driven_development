@@ -22,8 +22,8 @@
                         <!-- Django CSRF protection token -->
                         {% csrf_token %}
                         <!-- If an error variable exists, the error is displayed using invalid-feedback styling -->
-                        {% if error %}
-                            <div class="invalid-feedback">{{error}}</div>
+                        {% if form.errors %}
+                            <div class="invalid-feedback">{{ form.errors.text }}</div>
                         {% endif %}
                     </form>
                 </div>
