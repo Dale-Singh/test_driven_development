@@ -1,41 +1,40 @@
-# Import ValidationError for catching Django-level validation issues (e.g., blank fields)
-from django.core.exceptions import ValidationError
-# Import Django utility to escape special HTML characters for safe rendering
-from django.utils.html import escape
-from django.shortcuts import redirect, render
+# Import Django exceptions and utilities
+from django.utils.html import escape  # Escapes HTML to prevent rendering special characters
+from django.shortcuts import redirect, render  # For rendering templates and redirecting after POSTs
+
+# Import models and forms from the lists app
 from lists.models import Item, List
 from lists.forms import ItemForm
 
-# All Django views must accept a request object, even if not used
-# The request object contains data about the HTTP request, which can be useful later
-
 # View function for rendering the home page
 def home_page(request):
-    # Render the "home.html" template with the form and return an HttpResponse
-    return render(request, "home.html", {'form': ItemForm()})
+    # Always pass an empty form to the home page
+    return render(request, "home.html", {"form": ItemForm()})
 
 def view_list(request, list_id):
     # Retrieve the list from the database using the provided list_id
     our_list = List.objects.get(id=list_id)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = ItemForm(data=request.POST)
         if form.is_valid():
-            Item.objects.create(text=request.POST["text"], list=our_list)
+            # The form creates a new Item instance, links it to the list, and saves it to the database
+            form.save(for_list=our_list)
             return redirect(our_list)
     else:
         form = ItemForm()
+
     return render(request, "list.html", {"list": our_list, "form": form})
 
 def new_list(request):
-    # Create a form by passing in data from the post request
+    # Build a form instance using POST data from the request
     form = ItemForm(data=request.POST)
 
     if form.is_valid():
-        # Create a new List instance and save it to the database
+        # Create a new List and link a new Item to it using the form
         nulist = List.objects.create()
-        # Create a new Item instance linked to the new list
-        Item.objects.create(text=request.POST["text"], list=nulist)
+        form.save(for_list=nulist)
         return redirect(nulist)
     else:
+        # On validation failure, re-render the home page with the invalid form and its errors
         return render(request, "home.html", {"form": form})

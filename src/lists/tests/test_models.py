@@ -31,7 +31,6 @@ class ListandItemModelsTest(TestCase):
         second_item.save()
 
         saved_list = List.objects.get()
-        # Verify that both lists are the same by comparing the IDs (.id) of both lists
         self.assertEqual(saved_list, mylist)
 
         # Use Django's ORM API to query and retrieve all saved items from the database
@@ -44,9 +43,7 @@ class ListandItemModelsTest(TestCase):
         first_saved_item = saved_items[0]
         second_saved_item = saved_items[1]
 
-        # Verify that the saved items match the original data
         self.assertEqual(first_saved_item.text,"The first (ever) item")
-        # Verify that the saved items are associated to the correct list
         self.assertEqual(first_saved_item.list, mylist)
 
         self.assertEqual(second_saved_item.text,"Item the second")
