@@ -13,3 +13,6 @@ class Item(models.Model):
     # Foreign key to the List model. If a List is deleted, 
     # all associated Items are deleted (cascading delete).
     list = models.ForeignKey(List, default=None, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("list", "text")

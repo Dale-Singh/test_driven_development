@@ -2,25 +2,25 @@
 from django.test import TestCase
 # Import Django utility to escape special HTML characters for safe rendering
 from django.utils.html import escape
+
+# Import views, models, and forms from the lists app
 from lists.views import home_page
 from lists.models import Item, List
 from lists.forms import ItemForm, EMPTY_ITEM_ERROR
 
-# Define a test case class that inherits from TestCase
+# Tests for the home page
 class HomePageTest(TestCase):
-    # This test checks that the root URL ("/") is correctly resolved by the application
-    # It uses Django's test client to simulate an HTTP GET request to "/",
-    # ensuring that the URL resolves correctly and the view returns the expected HTML response
     def test_uses_home_template(self):
-        # Send a GET request to the root URL, a HttpResponse object is returned
+        # GET request to root URL should use the home template
         response = self.client.get("/")
         self.assertTemplateUsed(response, "home.html")
     
     def test_home_page_uses_item_form(self):
+        # Home page context should include an ItemForm
         response = self.client.get("/")
-        # Checks that the form returned is of type ItemForm
         self.assertIsInstance(response.context["form"], ItemForm)
 
+# Tests for existing list pages and form behavior
 class ListViewTest(TestCase):
     def test_uses_list_template(self):
         mylist = List.objects.create()
@@ -41,15 +41,14 @@ class ListViewTest(TestCase):
         self.assertNotContains(response, "other list item")
 
     def test_passes_correct_list_to_template(self):
+        # The view should pass the correct list object to the template
         other_list = List.objects.create()
         correct_list = List.objects.create()
-        response = self.client.get(F"/lists/{correct_list.id}/")
-        # response.context is a dictionary like object containing data 
-        # sent to the template from the view. The key "list" is accessed
-        # and its value is compared against correct_list
+        response = self.client.get(f"/lists/{correct_list.id}/")
         self.assertEqual(response.context["list"], correct_list)
 
     def test_can_save_a_POST_request_to_an_existing_list(self):
+        # Submits a new item to a specific list and checks that it's saved correctly
         other_list = List.objects.create()
         correct_list = List.objects.create()
 
@@ -61,11 +60,10 @@ class ListViewTest(TestCase):
         self.assertEqual(Item.objects.count(), 1)
         new_item = Item.objects.get()
         self.assertEqual(new_item.text, "A new item for an existing list")
-        # Django treats new_item.list as a List instance, not just an ID reference.
-        # When comparing two model instances, Django automatically compares their primary keys (IDs).
         self.assertEqual(new_item.list, correct_list)
 
     def test_POSTS_redirects_to_list_view(self):
+        # After a valid POST, the user is redirected back to the list page
         other_list = List.objects.create()
         correct_list = List.objects.create()
 
@@ -77,63 +75,64 @@ class ListViewTest(TestCase):
         self.assertRedirects(response, f"/lists/{correct_list.id}/")
     
     def test_displays_item_form(self):
+        # Form is rendered on the list page with expected input field
         mylist = List.objects.create()
         response = self.client.get(f"/lists/{mylist.id}/")
         self.assertIsInstance(response.context["form"], ItemForm)
         self.assertContains(response, 'name="text"')
     
-    # Helper function used in the other tests
+    # Helper method for submitting invalid input to a list
     def post_invalid_input(self):
         mylist = List.objects.create()
-        return self.client.post(f"/lists/{mylist.id}/", data={"text": ""},)
+        return self.client.post(f"/lists/{mylist.id}/", data={"text": ""})
     
     def test_for_invalid_input_nothing_saved_to_db(self):
+        # Submitting blank text should not create a new item
         self.post_invalid_input()
         self.assertEqual(Item.objects.count(), 0)
     
     def test_for_invalid_input_renders_list_template(self):
+        # Invalid input should render the list template again
         response = self.post_invalid_input()
-        # Checks that upon a validation error a page is rendered successfully (200)...
         self.assertEqual(response.status_code, 200)
-        # ...and that page is the lists page
         self.assertTemplateUsed(response, "list.html")
     
     def test_for_invalid_input_passes_form_to_template(self):
+        # The invalid form is passed back to the template for error display
         response = self.post_invalid_input()
         self.assertIsInstance(response.context["form"], ItemForm)
     
     def test_for_invalid_input_shows_error_on_page(self):
+        # Validation error message should be rendered in the response
         response = self.post_invalid_input()
         self.assertContains(response, escape(EMPTY_ITEM_ERROR))
 
+# Tests for creating new lists
 class NewListTest(TestCase):
-    # This test checks whether a new To-Do list entry is correctly saved and displayed
     def test_can_save_a_POST_request(self):
-        # URLs excluding a trailing / are action URLs, they modify the database
+        # A POST request to /lists/new should save a new item
         self.client.post("/lists/new", data={"text": "A new list item"})
-        # Verify that exactly one item has been saved in the Item table after the POST request
         self.assertEqual(Item.objects.count(), 1)
-        # Select the first row in the Item table
         new_item = Item.objects.first()
-        # Verify that the saved item’s text matches the submitted data
         self.assertEqual(new_item.text, "A new list item")
     
     def test_redirects_after_POST(self):
+        # After saving a new list, redirect to its list page
         response = self.client.post("/lists/new", data={"text": "A new list item"})
         new_list = List.objects.get()
-        # Verify that a redirection occurs not the result of the redirection
         self.assertRedirects(response, f"/lists/{new_list.id}/")
     
     def test_validation_errors_are_sent_back_to_home_page_template(self):
+        # Submitting blank text on the home page should show error
         response = self.client.post("/lists/new", data={"text": ""})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "home.html")
         self.assertIsInstance(response.context["form"], ItemForm)
-        # The view populates the homepage template with the below error message when input is invalid
         expected_error = escape(EMPTY_ITEM_ERROR)
         self.assertContains(response, expected_error)
     
     def test_validation_errors_end_up_on_lists_page(self):
+        # Submitting blank text on an existing list should show error
         list_ = List.objects.create()
         response = self.client.post(f"/lists/{list_.id}/", data={"text": ""})
         self.assertEqual(response.status_code, 200)
@@ -142,6 +141,7 @@ class NewListTest(TestCase):
         self.assertContains(response, expected_error)
 
     def test_invalid_list_items_arent_saved(self):
+        # No new list or item should be created for blank input
         self.client.post("/lists/new", data={"text": ""})
-        self.assertEqual(List.objects.count(),0)
-        self.assertEqual(Item.objects.count(),0)
+        self.assertEqual(List.objects.count(), 0)
+        self.assertEqual(Item.objects.count(), 0)
