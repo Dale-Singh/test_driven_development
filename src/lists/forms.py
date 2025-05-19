@@ -59,7 +59,6 @@ class ExistingListItemForm(ItemForm):
             e.error_dict = {"text": [DUPLICATE_ITEM_ERROR]}
             # Attach the updated error to the form's internal error collection
             self._update_errors(e)
-
-
     
-    
+    def save(self):
+        return forms.models.ModelForm.save(self)

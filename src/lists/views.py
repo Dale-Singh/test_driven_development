@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render  # For rendering templates and red
 
 # Import models and forms from the lists app
 from lists.models import Item, List
-from lists.forms import ItemForm
+from lists.forms import ItemForm, ExistingListItemForm
 
 # View function for rendering the home page
 def home_page(request):
@@ -14,16 +14,20 @@ def home_page(request):
 def view_list(request, list_id):
     # Retrieve the list from the database using the provided list_id
     our_list = List.objects.get(id=list_id)
-
+    
     if request.method == "POST":
-        form = ItemForm(data=request.POST)
+        # Bind form to submitted data and associate it with the current list
+        form = ExistingListItemForm(for_list=our_list, data=request.POST)
+        
         if form.is_valid():
-            # The form creates a new Item instance, links it to the list, and saves it to the database
-            form.save(for_list=our_list)
+            # Save the new item to the existing list and redirect to the same list page
+            form.save()
             return redirect(our_list)
     else:
-        form = ItemForm()
+        # Re-initialize the unbound form (relevant on initial GET or failed POST)
+        form = ExistingListItemForm(for_list=our_list)
 
+    # Render the list page with the current list and form (bound or unbound)
     return render(request, "list.html", {"list": our_list, "form": form})
 
 def new_list(request):

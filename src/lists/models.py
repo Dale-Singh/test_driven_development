@@ -15,4 +15,9 @@ class Item(models.Model):
     list = models.ForeignKey(List, default=None, on_delete=models.CASCADE)
 
     class Meta:
+        ordering = ("id",)
         unique_together = ("list", "text")
+    
+    # Return the item's text as its string representation for readability in admin, logs, and templates
+    def __str__(self):
+        return self.text

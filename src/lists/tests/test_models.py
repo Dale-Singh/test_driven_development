@@ -8,7 +8,7 @@ from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError
 
 # Tests for the List and Item models and their interactions
-class ListandModelTest(TestCase):
+class ItemModelTest(TestCase):
     def test_default_text(self):
         item = Item()
         self.assertEqual(item.text,"")
@@ -18,7 +18,7 @@ class ListandModelTest(TestCase):
         item = Item()
         item.list = mylist
         item.save()
-        self.assertIn(item, mylist.item_set_all())
+        self.assertIn(item, mylist.item_set.all())
 
     def test_cannot_save_null_list_items(self):
         # Attempting to save an item with text=None should raise a database-level error
@@ -48,6 +48,23 @@ class ListandModelTest(TestCase):
         Item.objects.create(list=list1, text="bla")
         item = Item(list=list2, text="bla")
         item.full_clean() # should not raise
+    
+    def test_list_ordering(self):
+        # Items should be ordered by ID by default, as specified in the model's Meta class
+        list1 = List.objects.create()
+        item1 = Item.objects.create(list=list1, text="i1")
+        item2 = Item.objects.create(list=list1, text="item 2")
+        item3 = Item.objects.create(list=list1, text="3")
+        
+        self.assertEqual(
+            list(Item.objects.all()),
+            [item1, item2, item3]
+        )
+    
+    def test_string_representation(self):
+        # The string representation of an Item should return its text
+        item = Item(text="some text")
+        self.assertEqual(str(item), "some text")
 
 class ListandModelTest(TestCase):
     def test_get_absolute_url(self):
