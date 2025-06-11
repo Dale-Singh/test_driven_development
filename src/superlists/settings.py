@@ -79,6 +79,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'lists',
+    'accounts',
+]
+
+# Specifies the custom user model to use instead of Django's default User model.
+# This must be set before the first migration and should point to the app label and class name.
+AUTH_USER_MODEL = 'accounts.User'
+
+# Defines the authentication backends Django will use.
+# This enables passwordless login using a custom backend.
+AUTHENTICATION_BACKENDS = [
+    'accounts.authentication.PasswordlessAuthenticationBackend',
 ]
 
 MIDDLEWARE = [
@@ -172,3 +183,11 @@ STATIC_ROOT = BASE_DIR / 'static'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configuration for sending email using Gmail's SMTP server
+# EMAIL_HOST_PASSWORD is securely loaded from environment variables for security
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = "superlistsdalesingh@gmail.com"
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD")
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True

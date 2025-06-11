@@ -1,12 +1,9 @@
-# Imports our custom class from base.py
-from functional_tests.base import FunctionalTest
+# Third-party (Selenium)
+from selenium.webdriver.common.by import By  # Strategies for locating elements on a web page
+from selenium.webdriver.common.keys import Keys  # Simulate keyboard input (e.g., Enter, Backspace)
 
-# Imports the By class, which provides different strategies for locating elements on a web page
-from selenium.webdriver.common.by import By
-
-# Imports the Keys class, which allows Selenium to simulate keyboard actions
-# (e.g., typing, pressing Enter, Backspace).
-from selenium.webdriver.common.keys import Keys
+# Local application
+from functional_tests.base import FunctionalTest  # Base class for shared functional test setup
 
 class LayoutAndStylingTest(FunctionalTest):
     def test_layout_and_styling(self):

@@ -1,7 +1,9 @@
-from django import forms
-from django.core.exceptions import ValidationError
+# Django
+from django import forms  # Provides form classes for handling user input and validation
+from django.core.exceptions import ValidationError  # Raised when form or model validation fails
 
-from lists.models import Item
+# Local application
+from lists.models import Item  # The Item model representing individual to-do list entries
 
 EMPTY_ITEM_ERROR = "You can't have an empty list item"
 

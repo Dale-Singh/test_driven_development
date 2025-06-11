@@ -5,6 +5,8 @@ Project Notes.gdoc
 __pycache__
 src/__pycache__
 **/*.pyc  # Ignore all .pyc files in all directories ** matches any directory at any depth, * matches any file in a directory
+.env
+src/.env
 
 
 # Ignore only the root-level static folder created by collectstatic

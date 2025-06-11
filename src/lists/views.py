@@ -1,10 +1,11 @@
-# Import Django exceptions and utilities
-from django.utils.html import escape  # Escapes HTML to prevent rendering special characters
-from django.shortcuts import redirect, render  # For rendering templates and redirecting after POSTs
+# Django
+from django.utils.html import escape  # Escapes special HTML characters to prevent injection
+from django.shortcuts import redirect, render  # Utilities for rendering templates and handling redirects
 
-# Import models and forms from the lists app
-from lists.models import Item, List
-from lists.forms import ItemForm, ExistingListItemForm
+# Local application
+from lists.models import Item, List  # Models representing to-do items and lists
+from lists.forms import ItemForm, ExistingListItemForm  # Forms for creating and validating list items
+
 
 # View function for rendering the home page
 def home_page(request):

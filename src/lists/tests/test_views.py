@@ -1,18 +1,19 @@
-# Import standard library modules
-from unittest import skip
+# Standard library
+from unittest import skip  # Temporarily skip tests while keeping them in the suite
 
-# Import Django test and utility tools
-from django.test import TestCase  # Base test case class
+# Django
+from django.test import TestCase  # Base test case class for writing unit tests
 from django.utils.html import escape  # Escapes special HTML characters for safe rendering
 
-# Import models and forms from the lists app
-from lists.models import Item, List
-from lists.forms import (
+# Local application
+from lists.models import Item, List  # Models under test from the 'lists' app
+from lists.forms import (  # Forms and error messages for list item input and validation
     ItemForm,
     ExistingListItemForm,
     EMPTY_ITEM_ERROR,
     DUPLICATE_ITEM_ERROR,
 )
+
 
 # Tests for the home page
 class HomePageTest(TestCase):

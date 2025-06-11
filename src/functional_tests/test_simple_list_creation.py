@@ -1,12 +1,10 @@
-# Imports our custom class from base.py
-from functional_tests.base import FunctionalTest
+# Third-party (Selenium)
+from selenium.webdriver.common.by import By  # Provides strategies for locating elements on a web page
+from selenium.webdriver.common.keys import Keys  # Simulates keyboard input (e.g., typing, Enter)
 
-# Imports the By class, which provides different strategies for locating elements on a web page
-from selenium.webdriver.common.by import By
+# Local application
+from functional_tests.base import FunctionalTest  # Base class for shared functional test setup
 
-# Imports the Keys class, which allows Selenium to simulate keyboard actions
-# (e.g., typing, pressing Enter, Backspace).
-from selenium.webdriver.common.keys import Keys
 
 class NewVisitorTest(FunctionalTest):
     def test_can_start_a_todo_list(self):  

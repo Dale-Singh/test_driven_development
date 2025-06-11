@@ -1,11 +1,10 @@
-# Import Django's base test case class for writing unit tests
-from django.test import TestCase
-# Import the Item and List models from the lists app to test database behavior
-from lists.models import Item, List
-# Import IntegrityError for catching database-level constraint violations (e.g., null fields)
-from django.db.utils import IntegrityError
-# Import ValidationError for catching Django-level validation issues (e.g., blank fields)
-from django.core.exceptions import ValidationError
+# Django
+from django.test import TestCase  # Base test case class for writing unit tests
+from django.db.utils import IntegrityError  # Raised for database-level constraint violations (e.g., null values)
+from django.core.exceptions import ValidationError  # Raised for Django-level validation issues (e.g., blank fields)
+
+# Local application
+from lists.models import Item, List  # Models under test from the 'lists' app
 
 # Tests for the List and Item models and their interactions
 class ItemModelTest(TestCase):

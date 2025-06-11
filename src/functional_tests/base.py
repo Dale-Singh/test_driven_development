@@ -1,16 +1,15 @@
-# Allows interaction with the operating system and environment variables
-import os
-# Provides time-related functions like sleep()
-import time
-# Provides a test case that starts a temporary live Django server with static files served
-# for browser-based functional tests
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-# This allows us to interact with the project through a web browser
-from selenium import webdriver
-# Provides strategies for locating elements on a web page (e.g., by ID, name, CSS selector)
-from selenium.webdriver.common.by import By
-# Exception class for handling browser-related errors
-from selenium.common.exceptions import WebDriverException
+# Standard library
+import os  # Interact with the operating system and environment variables
+import time  # Provides time-related functions like sleep()
+
+# Django
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase  # Live server for functional tests with static files
+
+# Third-party (Selenium)
+from selenium import webdriver  # Controls a web browser for automated functional testing
+from selenium.webdriver.common.by import By  # Strategies for locating elements on a web page
+from selenium.common.exceptions import WebDriverException  # Exception class for handling browser-related errors
+
 
 
 MAX_WAIT = 5

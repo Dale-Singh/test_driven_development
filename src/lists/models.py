@@ -1,10 +1,11 @@
-from django.db import models
-from django.urls import reverse
+# Django
+from django.db import models  # Provides Django's base classes for defining database models
+from django.urls import reverse  # Utility to get URL paths by view name and arguments
 
 # Django automatically creates a table for each model and defines an ID field
 class List(models.Model):
-    # Special Django-recognised method that defines the URL for this object.
-    # Enables automatic URL resolution for redirects, templates, and admin links.
+    # Returns the URL for this list instance by reversing the URL pattern named 'view_list'.
+    # The pattern maps to a view function, but 'reverse' finds the actual URL path (e.g., '/lists/5/').
     def get_absolute_url(self):
         return reverse('view_list', args=[self.id])
 

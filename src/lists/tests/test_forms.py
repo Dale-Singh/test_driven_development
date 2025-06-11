@@ -1,9 +1,9 @@
-# Import Django's base test case class for writing unit tests
-from django.test import TestCase
+# Django
+from django.test import TestCase # Base test case class for writing unit tests
 
-# Import models and forms from the lists app
-from lists.models import Item, List
-from lists.forms import (
+# Local application
+from lists.models import Item, List # Models under test from the 'lists' app
+from lists.forms import ( # Forms and error messages for handling list item input
     ItemForm,
     ExistingListItemForm,
     EMPTY_ITEM_ERROR,

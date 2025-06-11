@@ -4,34 +4,85 @@
         <title>To-Do lists</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Load Bootstrap CSS for styling -->
         <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     </head>
 
     <body>
-
         <div class="container">
 
+            <!-- Navigation bar containing the brand and login/logout form -->
+            <nav class="navbar">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="/">Superlists</a>
+
+                    {% if user.email %}
+                        <!-- Shows logged-in user email and logout form -->
+                        <span class="navbar-text">Logged in as {{ user.email }}</span>
+                        <form method="POST" action="TODO">
+                            <!-- CSRF token to protect against cross-site request forgery -->
+                            {% csrf_token %}
+                            <button id="id_logout" class="btn btn-outline-secondary" type="submit">
+                                Log out
+                            </button>
+                        </form>
+
+                    {% else %}
+                        <!-- Login form for submitting email to receive a login link -->
+                        <form method="POST" action="{% url 'send_login_email' %}">
+                            <!-- CSRF token to protect against cross-site request forgery -->
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <label class="navbar-text me-2" for="id_email_input">
+                                    Enter your email to log in
+                                </label>
+                                <input
+                                    id="id_email_input"
+                                    name="email"
+                                    class="form-control"
+                                    placeholder="your@email.com"
+                                />
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+            </nav>
+
+            <!-- Flash message section: displays success or warning messages after actions like form submission -->
+            {% if messages %}
+                <div class="row">
+                    <div class="col-md-8">
+                        {% for message in messages %}
+                            {% if message.level_tag == "success" %}
+                                <div class="alert alert-success">{{ message }}</div>
+                            {% else %}
+                                <div class="alert alert-warning">{{ message }}</div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Main section containing the to-do form and header -->
             <div class="row justify-content-center p-5 bg-body-tertiary rounded-3">
                 <div class="col-lg-6 text-center">
+                    <!-- Header text block that child templates can override -->
                     <h1 class="display-1 mb-4">{% block header_text %}{% endblock %}</h1> 
-                    <!-- The form uses the POST method to send data securely -->
-                    <!-- action specifies where the post request is sent -->
+
+                    <!-- To-do item form for submitting new list items -->
                     <form method="POST" action="{% block form_action %}{% endblock %}">
-                        <!-- Django CSRF protection token -->
+                        <!-- CSRF token to protect against cross-site request forgery -->
                         {% csrf_token %}
-                        <!-- User input field -->
                         <input
                             id="id_text"
                             name="text"
-                            class="form-control
-                                   form-control-lg
-                                   {% if form.errors %}is-invalid{% endif %}"
+                            class="form-control form-control-lg {% if form.errors %}is-invalid{% endif %}"
                             placeholder="Enter a to-do item"
                             value="{{ form.text.value }}"
                             aria-describedby="id_text_feedback"
                             required
                         />
-                        <!-- If an error variable exists, the error is displayed using invalid-feedback styling -->
+                        <!-- Error feedback display below the input field -->
                         {% if form.errors %}
                             <div id="id_text_feedback" class="invalid-feedback">
                                 {{ form.errors.text.0 }}
@@ -41,6 +92,7 @@
                 </div>
             </div>
 
+            <!-- Placeholder for the to-do list table (child templates will override this block) -->
             <div class="row justify-content-center">
                 <div class="col-lg-6 text-center">
                     {% block table %}
@@ -50,11 +102,12 @@
 
         </div>
 
+        <!-- Custom JavaScript for form behavior -->
         <script src="/static/lists.js"></script>
         <script>
-            // JavaScript: Hides the error message when the user starts typing in the input field
+            // Initializes form behavior: hides validation error when typing resumes
             window.onload = () => {
-            initialize("#id_text")
+                initialize("#id_text");
             }
         </script>
 
