@@ -19,7 +19,7 @@
                     {% if user.email %}
                         <!-- Shows logged-in user email and logout form -->
                         <span class="navbar-text">Logged in as {{ user.email }}</span>
-                        <form method="POST" action="TODO">
+                        <form method="POST" action="{% url 'logout' %}">
                             <!-- CSRF token to protect against cross-site request forgery -->
                             {% csrf_token %}
                             <button id="id_logout" class="btn btn-outline-secondary" type="submit">
