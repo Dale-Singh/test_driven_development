@@ -10,8 +10,6 @@ from selenium import webdriver  # Controls a web browser for automated functiona
 from selenium.webdriver.common.by import By  # Strategies for locating elements on a web page
 from selenium.common.exceptions import WebDriverException  # Exception class for handling browser-related errors
 
-
-
 MAX_WAIT = 5
 
 # Define the test case class, inheriting from StaticLiveServerTestCase  
@@ -71,3 +69,21 @@ class FunctionalTest(StaticLiveServerTestCase):
                 if time.time() - start_time > MAX_WAIT:
                     raise
                 time.sleep(0.5)
+    
+    # Waits until the logout button appears and confirms the user's email is shown in the navbar
+    def wait_to_be_logged_in(self, email):
+        self.wait_for(
+            lambda: self.browser.find_element(By.CSS_SELECTOR, "#id_logout")
+        )
+        navbar = self.browser.find_element(By.CSS_SELECTOR, ".navbar")
+        self.assertIn(email, navbar.text)
+    
+    # Waits until the login input appears and confirms the user's email is no longer in the navbar
+    def wait_to_be_logged_out(self, email):
+        self.wait_for(
+            lambda: self.browser.find_element(By.CSS_SELECTOR, "input[name=email]")
+        )
+        navbar = self.browser.find_element(By.CSS_SELECTOR, ".navbar")
+        self.assertNotIn(email, navbar.text)
+
+

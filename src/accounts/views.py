@@ -26,7 +26,7 @@ def send_login_email(request):
     # Send an email containing a login link
     send_mail(
         "Your login link for Superlists",      # Email subject
-        message_body,             # Email body (placeholder)
+        message_body,                          # Email body (placeholder)
         "superlistsdalesingh@gmail.com",       # Sender address
         [email]                                # Recipient list
     )
