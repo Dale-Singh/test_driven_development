@@ -29,6 +29,7 @@ if "DJANGO_DEBUG_FALSE" in os.environ:
     SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
     # The environment variable DJANGO_ALLOWED_HOST should contain the hostname or IP allowed to access the app.
     ALLOWED_HOSTS = [os.environ["DJANGO_ALLOWED_HOST"]]
+    db_path = os.environ["DJANGO_DB_PATH"]
 
 # If the environment variable is not set, enable debug mode (for development),
 # use an insecure default secret key and allow all hosts.
@@ -36,6 +37,7 @@ else:
     DEBUG = True
     SECRET_KEY = "insecure-key-for-dev"
     ALLOWED_HOSTS = []
+    db_path = BASE_DIR / "db.sqlite3"
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure-@=xs!bhft27uxao1-*-nib5$+z3%808yrr-a9$n1xp!b9z(#^+'
@@ -80,6 +82,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'lists',
     'accounts',
+    'functional_tests',
 ]
 
 # Specifies the custom user model to use instead of Django's default User model.
@@ -133,7 +136,7 @@ WSGI_APPLICATION = 'superlists.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': db_path
     }
 }
 

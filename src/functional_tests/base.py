@@ -10,6 +10,10 @@ from selenium import webdriver  # Controls a web browser for automated functiona
 from selenium.webdriver.common.by import By  # Strategies for locating elements on a web page
 from selenium.common.exceptions import WebDriverException  # Exception class for handling browser-related errors
 
+# Local application
+from functional_tests.container_commands import _run_commands # used to execute SSH commands to clean up test users from remote server database
+
+
 MAX_WAIT = 5
 
 # Define the test case class, inheriting from StaticLiveServerTestCase  
@@ -19,70 +23,88 @@ class FunctionalTest(StaticLiveServerTestCase):
     def setUp(self):  
         self.browser = webdriver.Firefox()
         # Check if a test server is specified in the environment variables i.e. staging.example.com
-        test_server = os.environ.get("TEST_SERVER")
+        self.test_server = os.environ.get("TEST_SERVER")
         # If TEST_SERVER exists, override self.live_server_url to use the specified server  
         # This allows testing on a remote test server instead of Django's default (http://127.0.0.1:8000/)
-        if test_server:
-            self.live_server_url = "http://" + test_server
+        if self.test_server:
+            self.live_server_url = "http://" + self.test_server
     
     def get_item_input_box(self):
         return self.browser.find_element(By.ID, 'id_text')
 
+    # Original code
+    # def tearDown(self):  
+    #     self.browser.quit()
+
     # The tearDown method runs after each test to clean up resources
-    def tearDown(self):  
+    def tearDown(self):
+        # ADDED: Clean up test users from server database when testing against remote servers
+        # This prevents "UNIQUE constraint failed" errors when multiple tests try to create
+        # the same test user (e.g., edith@example.com) on the staging server
+        if self.test_server:
+            self._cleanup_all_server_users()
         self.browser.quit()
 
-    def wait_for_row_in_list_table(self, row_text):
-        # Record the start time to track how long the function has been waiting
-        start_time = time.time()
+    # ADDED: Function to remove ALL users from server test database
+    # This is needed because server tests run against the real production database,
+    # not Django's temporary test database, so test data persists between test runs
+    def _cleanup_all_server_users(self):
+        # ADDED: SSH command to execute user deletion on the remote server
+        # Uses proper quoting to escape Python command through bash/SSH layers
+        try:
+            cleanup_command = [
+                "ssh", f"dale@{self.test_server}", 
+                "docker", "exec", "superlists",
+                "python", "/src/manage.py", "shell", "-c",
+                '"from accounts.models import User; User.objects.all().delete()"'
+            ]
+            _run_commands(cleanup_command)
+        except Exception:
+            # ADDED: Silent failure handling - cleanup errors shouldn't break tests
+            # If cleanup fails, the next test run might have conflicts, but the test
+            # itself completed successfully
+            pass  # Ignore cleanup errors
     
-        # Continuously attempt to find the row until successful or timeout occurs
-        while True:
-            try:
-                # Locate the table element by its ID, returns a WebElement object
-                table = self.browser.find_element(By.ID, "id_list_table")
-                # Find all table row (<tr>) elements within the table, 
-                # each row is returned as a WebElement object
-                rows = table.find_elements(By.TAG_NAME, "tr")
-                # Verify if the desired row_text exists within the table rows
-                self.assertIn(row_text, [row.text for row in rows])
-                # Exit the loop and function if the assertion passes (item found)
-                return
+    def wait(fn):
+        def modified_fn(*args, **kwargs):
+            # Record the start time to track how long we’ve been waiting
+            start_time = time.time()
             
-            # Handle AssertionError (if text not found) or WebDriverException (if page not fully loaded)
-            except (AssertionError, WebDriverException):
-                # Check if the maximum wait time has been exceeded
-                if time.time() - start_time > MAX_WAIT:
-                    # Re-raise the original error to indicate failure
-                    raise  
-                # Pause for 0.5 seconds before retrying
-                time.sleep(0.5)
+            # Keep trying the function until it succeeds or times out
+            while True:
+                try:
+                    return fn(*args, **kwargs)
+                # Retry on assertion failures or browser loading issues
+                except (AssertionError, WebDriverException):
+                    # Raise the exception if we've waited too long
+                    if time.time() - start_time > MAX_WAIT:
+                        raise
+                    # Wait briefly before trying again
+                    time.sleep(0.5)
+        return modified_fn
     
+    @wait
+    def wait_for_row_in_list_table(self, row_text):
+        # Get all rows in the list table
+        rows = self.browser.find_elements(By.CSS_SELECTOR, "#id_list_table tr")
+        # Assert that the expected text is present in one of the rows
+        self.assertIn(row_text, [row.text for row in rows])
+
+    @wait
     def wait_for(self, fn):
-        start_time = time.time()
-    
-        # Continuously attempt to run the function until successful or timeout occurs
-        while True:
-            try:
-                return fn()
-            except (AssertionError, WebDriverException):
-                if time.time() - start_time > MAX_WAIT:
-                    raise
-                time.sleep(0.5)
+        return fn()
     
     # Waits until the logout button appears and confirms the user's email is shown in the navbar
+    @wait
     def wait_to_be_logged_in(self, email):
-        self.wait_for(
-            lambda: self.browser.find_element(By.CSS_SELECTOR, "#id_logout")
-        )
+        self.browser.find_element(By.CSS_SELECTOR, "#id_logout")
         navbar = self.browser.find_element(By.CSS_SELECTOR, ".navbar")
         self.assertIn(email, navbar.text)
     
     # Waits until the login input appears and confirms the user's email is no longer in the navbar
+    @wait
     def wait_to_be_logged_out(self, email):
-        self.wait_for(
-            lambda: self.browser.find_element(By.CSS_SELECTOR, "input[name=email]")
-        )
+        self.browser.find_element(By.CSS_SELECTOR, "input[name=email]")
         navbar = self.browser.find_element(By.CSS_SELECTOR, ".navbar")
         self.assertNotIn(email, navbar.text)
 

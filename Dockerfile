@@ -21,7 +21,7 @@ COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
 # Copy the project source code and set ownership to nonroot, required to inherit 
-# read.write privileges to db.sqlite3 and other files
+# read.write privileges for files
 COPY --chown=nonroot:nonroot src /src
 
 # Set the working directory of the container
@@ -32,9 +32,6 @@ RUN python manage.py collectstatic
 
 # Set an environment variable, works with settings.py to initialise a production environment
 ENV DJANGO_DEBUG_FALSE=1
-
-# Applies all migrations to build or update the database schema
-# RUN python manage.py migrate --noinput
 
 # **SECURITY: Avoid running the container as root**
 # By default, Docker containers run as the root user, which is a security risk.

@@ -62,28 +62,56 @@
         host: "{{ inventory_hostname }}" # The hostname or IP of the target server is found and populated inside .env
         secret_key: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters') }}"  # A secret key is generated on the host and populated in .env
 
+    # ========== OLD BIND MOUNT APPROACH (COMMENTED OUT) ==========
     # Create a placeholder db.sqlite3 file on the server (for mounting into the container)
-    - name: Ensure db.sqlite3 file exists outside the container
-      ansible.builtin.file:
-        path: /home/dale/db.sqlite3  # server file system
-        state: touch
-      become: true
+    # - name: Ensure db.sqlite3 file exists outside the container
+    #   ansible.builtin.file:
+    #     path: /home/dale/db.sqlite3  # server file system
+    #     state: touch
+    #   become: true
     
     # Ensure the container can write to db.sqlite3:
     # - The Dockerfile creates a nonroot user (UID 100 / GID 101), and the container runs as that user
     # - This task changes ownership of the host's (server) db.sqlite3 file to that user, so it can write to the file when it's bind-mounted into the container
     # - This is required for Django to write to the database
     # - become: true is needed because changing file ownership requires root privileges
-    - name: Set db.sqlite3 ownership to match container user (nonroot)
-      ansible.builtin.file:
-        path: /home/dale/db.sqlite3 # server file system
-        owner: 100
-        group: 101
-      become: true
+    # - name: Set db.sqlite3 ownership to match container user (nonroot)
+    #   ansible.builtin.file:
+    #     path: /home/dale/db.sqlite3 # server file system
+    #     owner: 100
+    #     group: 101
+    #   become: true
 
+    # OLD CONTAINER CONFIGURATION WITH BIND MOUNT:
     # - Mount server's db.sqlite3 file (persistent DB) to the container
     # - Load env vars (previously uploaded and rendered to the server from the host)
     # - Map server port 80 to container port 8888
+    # - name: Run container
+    #   community.docker.docker_container:
+    #     name: superlists
+    #     image: superlists
+    #     state: started
+    #     recreate: true
+    #     env_file: ~/superlists.env  # server path
+    #     mounts:
+    #       - type: bind # Bind-mount: link host's db.sqlite3 into container at /src/db.sqlite3 for persistent storage
+    #         source: /home/dale/db.sqlite3  # server
+    #         target: /src/db.sqlite3  # inside container
+    #     ports: 80:8888
+    # ========== END OLD BIND MOUNT APPROACH ==========
+
+    # ========== NEW DOCKER VOLUME APPROACH ==========
+    # Create Docker volume for persistent database storage on the server
+    # This replaces the bind mount approach - Docker manages the storage location
+    - name: Create Docker volume for database
+      community.docker.docker_volume:
+        name: superlists-db
+        state: present
+
+    # Run container with volume mount instead of bind mount
+    # - Volume mount: Docker manages storage, better for production
+    # - Mount to /data directory inside container
+    # - Database will be created at /data/db.sqlite3
     - name: Run container
       community.docker.docker_container:
         name: superlists
@@ -92,10 +120,23 @@
         recreate: true
         env_file: ~/superlists.env  # server path
         mounts:
-          - type: bind # Bind-mount: link host's db.sqlite3 into container at /src/db.sqlite3 for persistent storage
-            source: /home/dale/db.sqlite3  # server
-            target: /src/db.sqlite3  # inside container
+          - type: volume
+            source: superlists-db  # Docker volume name
+            target: /data          # container directory where volume is mounted (server)
         ports: 80:8888
+        env:
+          DJANGO_DB_PATH: /data/db.sqlite3  # Tell Django where to find/create the database
+
+    # Fix volume permissions - CRITICAL STEP
+    # Docker volumes are created with root:root ownership by default
+    # The container runs as nonroot user (UID 100, GID 101)
+    # This step changes ownership so nonroot user can write to the database
+    - name: Fix volume permissions for nonroot user
+      community.docker.docker_container_exec:
+        container: superlists
+        command: chown -R nonroot:nonroot /data
+        user: root
+    # ========== END NEW DOCKER VOLUME APPROACH ==========
 
     # Run Django migrations inside the container to initialize db.sqlite3, unless the db is up to date
     - name: Run migration inside container
