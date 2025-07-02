@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By  # Strategies for locating elements 
 from selenium.common.exceptions import WebDriverException  # Exception class for handling browser-related errors
 
 # Local application
-from functional_tests.container_commands import _run_commands # used to execute SSH commands to clean up test users from remote server database
+from .container_commands import reset_database  # Function to reset database on server for clean test state
 
 
 MAX_WAIT = 5
@@ -28,42 +28,14 @@ class FunctionalTest(StaticLiveServerTestCase):
         # This allows testing on a remote test server instead of Django's default (http://127.0.0.1:8000/)
         if self.test_server:
             self.live_server_url = "http://" + self.test_server
+            reset_database(self.test_server) # Flush database to ensure clean state for each test
     
     def get_item_input_box(self):
         return self.browser.find_element(By.ID, 'id_text')
 
-    # Original code
-    # def tearDown(self):  
-    #     self.browser.quit()
-
-    # The tearDown method runs after each test to clean up resources
-    def tearDown(self):
-        # ADDED: Clean up test users from server database when testing against remote servers
-        # This prevents "UNIQUE constraint failed" errors when multiple tests try to create
-        # the same test user (e.g., edith@example.com) on the staging server
-        if self.test_server:
-            self._cleanup_all_server_users()
+    # The tearDown method runs after each test to clean up resources 
+    def tearDown(self):  
         self.browser.quit()
-
-    # ADDED: Function to remove ALL users from server test database
-    # This is needed because server tests run against the real production database,
-    # not Django's temporary test database, so test data persists between test runs
-    def _cleanup_all_server_users(self):
-        # ADDED: SSH command to execute user deletion on the remote server
-        # Uses proper quoting to escape Python command through bash/SSH layers
-        try:
-            cleanup_command = [
-                "ssh", f"dale@{self.test_server}", 
-                "docker", "exec", "superlists",
-                "python", "/src/manage.py", "shell", "-c",
-                '"from accounts.models import User; User.objects.all().delete()"'
-            ]
-            _run_commands(cleanup_command)
-        except Exception:
-            # ADDED: Silent failure handling - cleanup errors shouldn't break tests
-            # If cleanup fails, the next test run might have conflicts, but the test
-            # itself completed successfully
-            pass  # Ignore cleanup errors
     
     def wait(fn):
         def modified_fn(*args, **kwargs):

@@ -48,3 +48,9 @@ def _run_commands(commands):
         raise Exception(result)
     print(f"Result: {result!r}")
     return result.strip()
+
+# Reset the database on the server by flushing all data
+def reset_database(host):
+    return _exec_in_container(
+        host, ["/venv/bin/python", "/src/manage.py", "flush", "--noinput"]
+    )

@@ -187,10 +187,10 @@ STATIC_ROOT = BASE_DIR / 'static'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Configuration for sending email using Gmail's SMTP server
+# Configuration for sending email using SendGrid's SMTP server
 # EMAIL_HOST_PASSWORD is securely loaded from environment variables for security
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_HOST_USER = "superlistsdalesingh@gmail.com"
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_PASSWORD")
-EMAIL_PORT = 587
+EMAIL_HOST = "smtp.sendgrid.net"
+EMAIL_PORT = 2525
+EMAIL_HOST_USER = "apikey"
+EMAIL_HOST_PASSWORD = os.environ.get("SENDGRID_API_KEY")
 EMAIL_USE_TLS = True
