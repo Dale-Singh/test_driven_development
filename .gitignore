@@ -20,4 +20,5 @@ src/.env
 **/.DS_Store
 
 # Project-specific
+Recoverable Passwords/
 Project Notes.gdoc
