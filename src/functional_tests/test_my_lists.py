@@ -1,4 +1,5 @@
 # Django
+from selenium.webdriver.common.by import By
 from django.conf import settings # Access to Django project settings
 from django.contrib.auth import BACKEND_SESSION_KEY, SESSION_KEY, get_user_model # Tools for session-based authentication
 from django.contrib.sessions.backends.db import SessionStore # Manages session data using the database backend

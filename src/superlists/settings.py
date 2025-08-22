@@ -28,8 +28,19 @@ if "DJANGO_DEBUG_FALSE" in os.environ:
     # it is not defined in the Dockerfile.
     SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
     # The environment variable DJANGO_ALLOWED_HOST should contain the hostname or IP allowed to access the app.
-    ALLOWED_HOSTS = [os.environ["DJANGO_ALLOWED_HOST"]]
+    ALLOWED_HOSTS = [
+        os.environ["DJANGO_ALLOWED_HOST"],
+        'superlists.dalesingh.co.uk',
+        'staging.superlists.dalesingh.co.uk',
+        ]
     db_path = os.environ["DJANGO_DB_PATH"]
+
+    # CSRF settings for production - support both HTTP and HTTPS
+    CSRF_TRUSTED_ORIGINS = [
+        'https://superlists.dalesingh.co.uk',
+        'http://superlists.dalesingh.co.uk',
+        'http://staging.superlists.dalesingh.co.uk'
+    ]
 
 # If the environment variable is not set, enable debug mode (for development),
 # use an insecure default secret key and allow all hosts.
