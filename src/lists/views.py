@@ -3,6 +3,7 @@ from django.utils.html import escape  # Escapes special HTML characters to preve
 from django.shortcuts import redirect, render  # Utilities for rendering templates and handling redirects
 
 # Local application
+from accounts.models import User
 from lists.models import Item, List  # Models representing to-do items and lists
 from lists.forms import ItemForm, ExistingListItemForm  # Forms for creating and validating list items
 
@@ -38,6 +39,8 @@ def new_list(request):
     if form.is_valid():
         # Create a new List and link a new Item to it using the form
         nulist = List.objects.create()
+        nulist.owner = request.user
+        nulist.save()
         form.save(for_list=nulist)
         return redirect(nulist)
     else:
@@ -46,3 +49,7 @@ def new_list(request):
 
 def my_lists(request, email):
     return render(request, "my_lists.html")
+
+def my_lists(request, email):
+    owner = User.objects.get(email=email)
+    return render(request, "my_lists.html", {"owner": owner})
