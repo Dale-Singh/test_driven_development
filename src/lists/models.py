@@ -4,6 +4,15 @@ from django.urls import reverse  # Utility to get URL paths by view name and arg
 
 # Django automatically creates a table for each model and defines an ID field
 class List(models.Model):
+    # Model representing a to-do list, optionally owned by a User
+    owner = models.ForeignKey(
+        "accounts.User",
+        related_name="lists",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+
     # Returns the URL for this list instance by reversing the URL pattern named 'view_list'.
     # The pattern maps to a view function, but 'reverse' finds the actual URL path (e.g., '/lists/5/').
     def get_absolute_url(self):

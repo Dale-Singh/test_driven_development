@@ -39,8 +39,9 @@ def new_list(request):
     if form.is_valid():
         # Create a new List and link a new Item to it using the form
         nulist = List.objects.create()
-        nulist.owner = request.user
-        nulist.save()
+        if request.user.is_authenticated:
+            nulist.owner = request.user
+            nulist.save()
         form.save(for_list=nulist)
         return redirect(nulist)
     else:

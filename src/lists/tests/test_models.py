@@ -4,7 +4,8 @@ from django.db.utils import IntegrityError  # Raised for database-level constrai
 from django.core.exceptions import ValidationError  # Raised for Django-level validation issues (e.g., blank fields)
 
 # Local application
-from lists.models import Item, List  # Models under test from the 'lists' app
+from accounts.models import User
+from lists.models import Item, List
 
 # Tests for the List and Item models and their interactions
 class ItemModelTest(TestCase):
@@ -70,3 +71,12 @@ class ListandModelTest(TestCase):
         # Verifies that the model's URL is correctly generated
         mylist = List.objects.create()
         self.assertEqual(mylist.get_absolute_url(), f"/lists/{mylist.id}/")
+    
+    def test_lists_can_have_owners(self):
+        # Verifies that a list is associated to a User
+        user = User.objects.create(email="a@b.com")
+        mylist = List.objects.create(owner=user)
+        self.assertIn(mylist, user.lists.all())
+    
+    def test_list_owner_is_optional(self):
+        List.objects.create()  # should not raise
