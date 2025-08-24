@@ -43,3 +43,6 @@ def new_list(request):
     else:
         # On validation failure, re-render the home page with the invalid form and its errors
         return render(request, "home.html", {"form": form})
+
+def my_lists(request, email):
+    return render(request, "my_lists.html")

@@ -18,6 +18,7 @@
 
                     {% if user.email %}
                         <!-- Shows logged-in user email and logout form -->
+                         <a class="navbar-link" href="{% url 'my_lists' user.email %}">My lists</a>
                         <span class="navbar-text">Logged in as {{ user.email }}</span>
                         <form method="POST" action="{% url 'logout' %}">
                             <!-- CSRF token to protect against cross-site request forgery -->
@@ -68,48 +69,14 @@
                 <div class="col-lg-6 text-center">
                     <!-- Header text block that child templates can override -->
                     <h1 class="display-1 mb-4">{% block header_text %}{% endblock %}</h1> 
-
-                    <!-- To-do item form for submitting new list items -->
-                    <form method="POST" action="{% block form_action %}{% endblock %}">
-                        <!-- CSRF token to protect against cross-site request forgery -->
-                        {% csrf_token %}
-                        <input
-                            id="id_text"
-                            name="text"
-                            class="form-control form-control-lg {% if form.errors %}is-invalid{% endif %}"
-                            placeholder="Enter a to-do item"
-                            value="{{ form.text.value }}"
-                            aria-describedby="id_text_feedback"
-                            required
-                        />
-                        <!-- Error feedback display below the input field -->
-                        {% if form.errors %}
-                            <div id="id_text_feedback" class="invalid-feedback">
-                                {{ form.errors.text.0 }}
-                            </div>
-                        {% endif %}
-                    </form>
-                </div>
-            </div>
-
-            <!-- Placeholder for the to-do list table (child templates will override this block) -->
-            <div class="row justify-content-center">
-                <div class="col-lg-6 text-center">
-                    {% block table %}
+                    {% block extra_header %}
                     {% endblock %}
                 </div>
             </div>
-
+            {% block content %}
+            {% endblock %}
         </div>
-
-        <!-- Custom JavaScript for form behavior -->
-        <script src="/static/lists.js"></script>
-        <script>
-            // Initializes form behavior: hides validation error when typing resumes
-            window.onload = () => {
-                initialize("#id_text");
-            }
-        </script>
-
+        {% block scripts %}
+        {% endblock %}
     </body>
 </html>
