@@ -7,7 +7,8 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase  # Live 
 
 # Third-party (Selenium)
 from selenium import webdriver  # Controls a web browser for automated functional testing
-from selenium.webdriver.common.by import By  # Strategies for locating elements on a web page
+from selenium.webdriver.common.by import By # Strategies for locating elements on a web page
+from selenium.webdriver.common.keys import Keys # Simulate keyboard input (e.g., Enter, Backspace)
 from selenium.common.exceptions import WebDriverException  # Exception class for handling browser-related errors
 
 # Local application
@@ -79,5 +80,14 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.find_element(By.CSS_SELECTOR, "input[name=email]")
         navbar = self.browser.find_element(By.CSS_SELECTOR, ".navbar")
         self.assertNotIn(email, navbar.text)
+    
+    # Adds a new item to the list by typing into the input box and pressing Enter,
+    # then waits until the new row appears in the list table with the correct number
+    def add_list_item(self, item_text):
+        num_rows = len(self.browser.find_elements(By.CSS_SELECTOR, "#id_list_table tr"))
+        self.get_item_input_box().send_keys(item_text)
+        self.get_item_input_box().send_keys(Keys.ENTER)
+        item_number = num_rows + 1
+        self.wait_for_row_in_list_table(f"{item_number}: {item_text}")
 
 

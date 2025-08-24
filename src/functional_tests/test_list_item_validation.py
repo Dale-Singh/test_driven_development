@@ -1,12 +1,12 @@
-# Third-party (Selenium)
+# Standard library
+from unittest import skip # Allows skipping tests temporarily while keeping them in the suite
+
+# Selenium
 from selenium.webdriver.common.by import By  # Strategies for locating elements on a web page
 from selenium.webdriver.common.keys import Keys  # Simulate keyboard input (e.g., Enter, Backspace)
 
 # Local application
 from functional_tests.base import FunctionalTest  # Base class for shared functional test setup
-
-# Allows skipping tests temporarily while keeping them in the suite
-from unittest import skip
 
 class ItemValidationTest(FunctionalTest):
     def get_error_element(self):
@@ -56,9 +56,7 @@ class ItemValidationTest(FunctionalTest):
     def test_cannot_add_duplicate_items(self):
         # Edith goes to the home page and starts a new list
         self.browser.get(self.live_server_url)
-        self.get_item_input_box().send_keys("Buy wellies")
-        self.get_item_input_box().send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table("1: Buy wellies")
+        self.add_list_item("Buy wellies")
 
         # She accidentally tries to enter a duplicate item
         self.get_item_input_box().send_keys("Buy wellies")
@@ -74,9 +72,7 @@ class ItemValidationTest(FunctionalTest):
     def test_error_messages_are_cleared_on_input(self):
         # Edith starts a list and causes a validation error:
         self.browser.get(self.live_server_url)
-        self.get_item_input_box().send_keys("Banter too thick")
-        self.get_item_input_box().send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table("1: Banter too thick")
+        self.add_list_item("Banter too thick")
         self.get_item_input_box().send_keys("Banter too thick")
         self.get_item_input_box().send_keys(Keys.ENTER)
         self.wait_for(

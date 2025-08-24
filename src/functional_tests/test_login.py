@@ -4,7 +4,7 @@ import re  # For regex-based pattern matching
 # Django
 from django.core import mail  # Access Django's test email outbox
 
-# Third-party (Selenium)
+# Selenium
 from selenium.webdriver.common.by import By  # Strategies for locating page elements
 from selenium.webdriver.common.keys import Keys  # Simulate keyboard input (e.g., Enter, Backspace)
 
