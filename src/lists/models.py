@@ -17,6 +17,11 @@ class List(models.Model):
     # The pattern maps to a view function, but 'reverse' finds the actual URL path (e.g., '/lists/5/').
     def get_absolute_url(self):
         return reverse('view_list', args=[self.id])
+    
+    @property
+    def name(self):
+        # Use the text of the first item in the list as its "name"
+        return self.item_set.first().text
 
 class Item(models.Model):
     text = models.TextField(default="")

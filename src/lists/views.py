@@ -49,8 +49,5 @@ def new_list(request):
         return render(request, "home.html", {"form": form})
 
 def my_lists(request, email):
-    return render(request, "my_lists.html")
-
-def my_lists(request, email):
     owner = User.objects.get(email=email)
     return render(request, "my_lists.html", {"owner": owner})

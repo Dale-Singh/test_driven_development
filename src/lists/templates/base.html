@@ -6,6 +6,17 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- Load Bootstrap CSS for styling -->
         <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+        <style>
+            /* Fix header wrapping - prevents early wrapping and allows smart wrapping when needed */
+            .row.justify-content-center .display-1 {
+                word-break: normal;
+                overflow-wrap: break-word;
+                hyphens: manual;
+                text-wrap: balance;
+            }
+        </style>
+
     </head>
 
     <body>
@@ -66,7 +77,7 @@
 
             <!-- Main section containing the to-do form and header -->
             <div class="row justify-content-center p-5 bg-body-tertiary rounded-3">
-                <div class="col-lg-6 text-center">
+                <div class="col-lg-10 text-center">
                     <!-- Header text block that child templates can override -->
                     <h1 class="display-1 mb-4">{% block header_text %}{% endblock %}</h1> 
                     {% block extra_header %}
